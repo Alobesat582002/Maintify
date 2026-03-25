@@ -2,8 +2,10 @@
 require_once 'config/db.php';
 include_once 'includes/header.php'; // ← ضع رابط main.css هنا داخل header.php
 include_once 'includes/navbar.php';
-?>
 
+
+?>
+<link rel="stylesheet" href="assets/css/main.css">
 <!-- ══ HERO ══ -->
 <section class="hero">
 
@@ -324,4 +326,3 @@ include_once 'includes/navbar.php';
 </script>
 
 <?php include_once 'includes/footer.php'; ?> 
-/* زبي بطيز مودي 
