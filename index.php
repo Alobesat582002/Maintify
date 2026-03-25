@@ -2,9 +2,8 @@
 require_once 'config/db.php';
 include_once 'includes/header.php'; // ← ضع رابط main.css هنا داخل header.php
 include_once 'includes/navbar.php';
-
 ?>
-<link rel="stylesheet" href="assets/css/main.css">
+
 <!-- ══ HERO ══ -->
 <section class="hero">
 
@@ -34,65 +33,79 @@ include_once 'includes/navbar.php';
     </div>
   </div>
 
-  <!-- يمين: رسم منزل + بطاقات عائمة -->
+  <!-- يمين: فيديو slideshow -->
   <div class="hero-right">
-    <div class="hero-house-wrap">
 
-      <!-- SVG منزل -->
-      <svg class="hero-house-svg" viewBox="0 0 400 340" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- سماء -->
-        <rect width="400" height="340" rx="24" fill="#f0ebe0"/>
-        <!-- شمس -->
-        <circle cx="340" cy="55" r="38" fill="#fde68a" opacity=".6"/>
-        <!-- أرضية -->
-        <rect y="240" width="400" height="100" rx="0" fill="#d4c9b0" opacity=".5"/>
-        <!-- عشب -->
-        <ellipse cx="200" cy="248" rx="180" ry="14" fill="#8bc34a" opacity=".4"/>
-        <!-- جسم البيت -->
-        <rect x="80" y="155" width="240" height="155" rx="4" fill="#fff"/>
-        <!-- سقف -->
-        <polygon points="55,165 200,60 345,165" fill="#e8651a"/>
-        <polygon points="55,165 200,80 345,165" fill="#c85510" opacity=".3"/>
-        <!-- مدخل -->
-        <rect x="162" y="220" width="76" height="90" rx="8" fill="#c85510" opacity=".8"/>
-        <circle cx="230" cy="268" r="4" fill="#fff" opacity=".6"/>
-        <!-- نافذة يسار -->
-        <rect x="100" y="185" width="60" height="55" rx="6" fill="#bfdbfe"/>
-        <line x1="130" y1="185" x2="130" y2="240" stroke="white" stroke-width="2"/>
-        <line x1="100" y1="212" x2="160" y2="212" stroke="white" stroke-width="2"/>
-        <!-- نافذة يمين -->
-        <rect x="240" y="185" width="60" height="55" rx="6" fill="#bfdbfe"/>
-        <line x1="270" y1="185" x2="270" y2="240" stroke="white" stroke-width="2"/>
-        <line x1="240" y1="212" x2="300" y2="212" stroke="white" stroke-width="2"/>
-        <!-- مدخنة -->
-        <rect x="270" y="75" width="28" height="50" rx="3" fill="#c85510"/>
-        <rect x="266" y="68" width="36" height="12" rx="3" fill="#a83f00"/>
-        <!-- شجرة -->
-        <rect x="30"  y="205" width="8" height="45" fill="#8b6914"/>
-        <circle cx="34" cy="195" r="26" fill="#66bb6a"/>
-        <rect x="358" y="215" width="8" height="35" fill="#8b6914"/>
-        <circle cx="362" cy="206" r="20" fill="#4caf50"/>
-      </svg>
+    <!-- Video Slider -->
+    <div class="vslider">
 
-      <!-- بطاقة عائمة يسار -->
-      <div class="hero-float-badge left">
-        <span class="hfb-icon">🔧</span>
-        <div>
-          <div class="hfb-num">2,400+</div>
-          <div class="hfb-label">فني معتمد</div>
-        </div>
+      <!-- الفيديوهات الثلاثة -->
+      <div class="vslide active">
+        <video autoplay muted loop playsinline>
+          <source src="assets/vid/1vd.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="vslide">
+        <video muted loop playsinline>
+          <source src="assets/vid/2vd.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="vslide">
+        <video muted loop playsinline>
+          <source src="assets/vid/3vd.mp4" type="video/mp4">
+        </video>
       </div>
 
-      
-      <div class="hero-float-badge right">
-        <span class="hfb-icon">⭐</span>
-        <div>
-          <div class="hfb-num">4.9/5</div>
-          <div class="hfb-label">رضا العملاء</div>
-        </div>
+      <!-- Gradient overlay -->
+      <div class="vslider-overlay"></div>
+
+      <!-- Label فوق الفيديو -->
+      <div class="vslider-label">
+        <span class="vslider-label-dot"></span>
+        <span class="vslider-label-text">فنيون محترفون في الميدان</span>
+      </div>
+
+      <!-- Dots navigation -->
+      <div class="vslider-dots">
+        <button class="vdot active" data-index="0"></button>
+        <button class="vdot" data-index="1"></button>
+        <button class="vdot" data-index="2"></button>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="vslider-progress">
+        <div class="vslider-progress-bar" id="vProgressBar"></div>
       </div>
 
     </div>
+
+    <!-- بطاقات معلومات -->
+    <div class="vslider-stats">
+      <div class="vstat">
+        <span class="vstat-icon">🔧</span>
+        <div>
+          <div class="vstat-num">2,400+</div>
+          <div class="vstat-label">فني معتمد</div>
+        </div>
+      </div>
+      <div class="vstat-divider"></div>
+      <div class="vstat">
+        <span class="vstat-icon">⭐</span>
+        <div>
+          <div class="vstat-num">4.9/5</div>
+          <div class="vstat-label">رضا العملاء</div>
+        </div>
+      </div>
+      <div class="vstat-divider"></div>
+      <div class="vstat">
+        <span class="vstat-icon">⚡</span>
+        <div>
+          <div class="vstat-num">15 د</div>
+          <div class="vstat-label">أول استجابة</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -252,5 +265,62 @@ include_once 'includes/navbar.php';
   </div>
 </section>
 <?php endif; ?>
+
+<script>
+(function () {
+  const slides   = document.querySelectorAll('.vslide');
+  const dots     = document.querySelectorAll('.vdot');
+  const bar      = document.getElementById('vProgressBar');
+  const DURATION = 7000; // مدة كل فيديو بالـ ms
+  let current    = 0;
+  let timer      = null;
+  let startTime  = null;
+  let rafId      = null;
+
+  function goTo(idx) {
+    // أوقف الحركة الحالية
+    cancelAnimationFrame(rafId);
+
+    // أخفي الشريحة الحالية
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    slides[current].querySelector('video').pause();
+
+    // فعّل الجديدة
+    current = idx;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+
+    const vid = slides[current].querySelector('video');
+    vid.currentTime = 0;
+    vid.play().catch(() => {});
+
+    // ابدأ progress bar
+    startTime = performance.now();
+    animateBar();
+  }
+
+  function animateBar() {
+    rafId = requestAnimationFrame(function tick(now) {
+      const elapsed  = now - startTime;
+      const progress = Math.min(elapsed / DURATION * 100, 100);
+      bar.style.width = progress + '%';
+      if (progress < 100) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        goTo((current + 1) % slides.length);
+      }
+    });
+  }
+
+  // Dots click
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => goTo(+dot.dataset.index));
+  });
+
+  // ابدأ
+  goTo(0);
+})();
+</script>
 
 <?php include_once 'includes/footer.php'; ?>
