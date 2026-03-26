@@ -7,70 +7,16 @@ body {
     color: #111827;
 }
 
-/* Navbar Custom Styling */
-.maintify-nav {
-    background: #f5f0e8 !important;
-    border-bottom: 1px solid #e8e8ed;
-    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-}
-
-.nav-logo-img {
-    height: 40px; /* حجم ثابت للوجو لمنع التضخم */
-    width: auto;
-    object-fit: contain;
-}
-
-.nav-brand-name {
-    font-size: 20px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0;
-    padding-left: 8px;
-}
-
-.nav-brand-name span {
-    color: #4f46e5;
-}
-
-.maintify-nav .nav-link {
-    font-size: 15px;
-    font-weight: 500;
-    color: #4b5563 !important;
-    padding: 8px 16px !important;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.maintify-nav .nav-link:hover {
-    color: #111827 !important;
-    background: #f3f4f6;
-}
-
-.btn-nav-register {
-    background: #4f46e5 !important;
-    color: #ffffff !important;
-    border-radius: 8px;
-    font-weight: 600;
-}
-
-.btn-nav-register:hover {
-    background: #4338ca !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-}
-
 /* Cards Custom Styling */
 .card {
     border: none;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* For specific cards that need a hover lift effect */
 .card-hover:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
