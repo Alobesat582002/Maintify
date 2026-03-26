@@ -20,21 +20,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $city = trim($_POST['city']);
     $address = trim($_POST['address']);
     
-    // جلب الاهتمامات والتأكد أنها مصفوفة
+    // جلب الاهتمامات
     $interests = isset($_POST['interests']) && is_array($_POST['interests']) ? $_POST['interests'] : [];
+
+    // معالجة رفع الصورة مع فحص الحجم (5 ميجابايت)
+    $profile_image = null;
+    if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
+        $filename = $_FILES['profile_image']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $max_size = 5 * 1024 * 1024; // 5 MB
+
+        if ($_FILES['profile_image']['size'] > $max_size) {
+            $error = "Image size is too large. Maximum allowed size is 5MB.";
+        } elseif (in_array($ext, $allowed)) {
+            $new_filename = uniqid('avatar_') . '.' . $ext;
+            $upload_path = '../assets/images/avatars/' . $new_filename;
+            
+            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $upload_path)) {
+                $profile_image = $new_filename;
+            } else {
+                $error = "Failed to upload image. Check folder permissions.";
+            }
+        } else {
+            $error = "Invalid image format. Use JPG, PNG, or WEBP.";
+        }
+    }
 
     if (empty($first_name) || empty($last_name)) {
         $error = "First name and last name are required.";
-    } else {
+    } elseif (empty($error)) {
         try {
             $pdo->beginTransaction();
 
-            // أ. تحديث بيانات المستخدم في جدول users
-            $sql = "UPDATE users SET first_name = ?, last_name = ?, phone = ?, country = ?, city = ?, address = ? WHERE id = ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$first_name, $last_name, $phone, $country, $city, $address, $user_id]);
+            // أ. تحديث بيانات المستخدم (مع أو بدون الصورة)
+            if ($profile_image) {
+                $sql = "UPDATE users SET first_name = ?, last_name = ?, phone = ?, country = ?, city = ?, address = ?, profile_image = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$first_name, $last_name, $phone, $country, $city, $address, $profile_image, $user_id]);
+            } else {
+                $sql = "UPDATE users SET first_name = ?, last_name = ?, phone = ?, country = ?, city = ?, address = ? WHERE id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$first_name, $last_name, $phone, $country, $city, $address, $user_id]);
+            }
 
-            // ب. تحديث الاهتمامات: حذف القديم أولاً ثم إدخال الجديد
+            // ب. تحديث الاهتمامات
             $stmt_delete = $pdo->prepare("DELETE FROM user_interests WHERE user_id = ?");
             $stmt_delete->execute([$user_id]);
 
@@ -46,8 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             $pdo->commit();
-            
-            // تحديث الاسم في الجلسة لكي يتغير في الـ Navbar فوراً
             $_SESSION['name'] = $first_name . ' ' . $last_name;
             $success = "Profile updated successfully!";
             
@@ -58,18 +86,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// 2. جلب بيانات المستخدم الحالية لتعبئة الفورم
+// 2. جلب بيانات المستخدم الحالية
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
-// 3. جلب اهتمامات المستخدم الحالية كـ (مصفوفة من الأرقام) لتحديد الـ Checkboxes
+// 3. جلب الاهتمامات
 $stmt_int = $pdo->prepare("SELECT category_id FROM user_interests WHERE user_id = ?");
 $stmt_int->execute([$user_id]);
-// جلب كعمود واحد فقط لتسهيل البحث لاحقاً
 $current_interests = $stmt_int->fetchAll(PDO::FETCH_COLUMN);
 
-// 4. جلب جميع الأقسام المتاحة
+// 4. جلب جميع الأقسام
 $stmt_cat = $pdo->query("SELECT id, name, description FROM categories ORDER BY id ASC");
 $all_categories = $stmt_cat->fetchAll();
 
@@ -94,7 +121,22 @@ include_once '../includes/navbar.php';
                         <div class="alert alert-success"><?php echo $success; ?></div>
                     <?php endif; ?>
 
-                    <form action="profile.php" method="POST">
+                    <form action="profile.php" method="POST" enctype="multipart/form-data" onsubmit="return confirm('Are you sure you want to save these changes?');">
+                        
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                            <?php 
+                                $img_src = (!empty($user['profile_image']) && $user['profile_image'] !== 'default.png') 
+                                    ? "../assets/images/avatars/" . $user['profile_image'] 
+                                    : "../assets/images/logo.png";
+                            ?>
+                            <img src="<?php echo htmlspecialchars($img_src); ?>" id="profilePreview" alt="Profile" class="rounded-circle object-fit-cover shadow-sm border" style="width: 100px; height: 100px;">
+                            <div class="ms-4">
+                                <label class="form-label fw-bold d-block">Profile Photo</label>
+                                <input class="form-control form-control-sm w-auto" type="file" name="profile_image" id="profileInput" accept="image/*">
+                                <small class="text-muted d-block mt-1">Max size: 5MB. Formats: JPG, PNG, WEBP.</small>
+                            </div>
+                        </div>
+
                         <h5 class="mb-3 text-primary fw-bold">Personal Information</h5>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
@@ -139,14 +181,11 @@ include_once '../includes/navbar.php';
                         
                         <div class="row g-3 mb-4">
                             <?php foreach($all_categories as $cat): ?>
-                                <?php 
-                                    // فحص ما إذا كان القسم الحالي موجوداً في مصفوفة اهتمامات المستخدم
-                                    $is_checked = in_array($cat['id'], $current_interests) ? 'checked' : ''; 
-                                ?>
+                                <?php $is_checked = in_array($cat['id'], $current_interests) ? 'checked' : ''; ?>
                                 <div class="col-md-6">
                                     <div class="form-check border rounded p-2">
                                         <input class="form-check-input ms-1" type="checkbox" name="interests[]" value="<?php echo $cat['id']; ?>" id="cat_<?php echo $cat['id']; ?>" <?php echo $is_checked; ?>>
-                                        <label class="form-check-label ms-2" for="cat_<?php echo $cat['id']; ?>">
+                                        <label class="form-check-label ms-2 w-100" for="cat_<?php echo $cat['id']; ?>">
                                             <strong><?php echo htmlspecialchars($cat['name']); ?></strong><br>
                                             <span class="text-muted small"><?php echo htmlspecialchars($cat['description']); ?></span>
                                         </label>
@@ -162,5 +201,24 @@ include_once '../includes/navbar.php';
         </div>
     </div>
 </div>
+
+<script>
+// سكربت معاينة الصورة وفحص الحجم قبل الرفع
+document.getElementById('profileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        if (file.size > 5242880) { // 5MB
+            alert('File is too large. Maximum size is 5MB.');
+            this.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePreview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+});
+</script>
 
 <?php include_once '../includes/footer.php'; ?>

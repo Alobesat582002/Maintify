@@ -1,7 +1,7 @@
 <?php
 require_once '../config/db.php';
 
-// حماية الواجهة
+// 1. حماية الواجهة
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'technician') {
     header("Location: ../login.php");
     exit();
@@ -17,33 +17,9 @@ $technician_id = $_SESSION['user_id'];
 $error = '';
 $success = '';
 
-// 1. معالجة تقديم العرض (Bid)
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_bid'])) {
-    $price = $_POST['price'];
-    $proposal = trim($_POST['proposal']);
-
-    // التأكد أن الفني لم يقدم عرضاً مسبقاً على هذا الطلب
-    $check_stmt = $pdo->prepare("SELECT id FROM bids WHERE job_id = ? AND technician_id = ?");
-    $check_stmt->execute([$job_id, $technician_id]);
-    
-    if ($check_stmt->rowCount() > 0) {
-        $error = "You have already submitted a bid for this job.";
-    } elseif (empty($price) || empty($proposal)) {
-        $error = "Please provide both a price and a proposal.";
-    } else {
-        $sql = "INSERT INTO bids (job_id, technician_id, price, proposal) VALUES (?, ?, ?, ?)";
-        $stmt = $pdo->prepare($sql);
-        if ($stmt->execute([$job_id, $technician_id, $price, $proposal])) {
-            $success = "Your bid has been submitted successfully!";
-        } else {
-            $error = "Something went wrong. Please try again.";
-        }
-    }
-}
-
-// 2. جلب تفاصيل الطلب وبيانات صاحب المنزل
+// 2. جلب تفاصيل الطلب (يجب أن يكون هنا لضمان توفر بيانات $job قبل استخدامه)
 $stmt = $pdo->prepare("
-    SELECT j.*, c.name as category_name, u.id as owner_id, u.first_name, u.last_name, u.city, u.address 
+    SELECT j.*, c.name as category_name, u.id as owner_id, u.first_name, u.last_name, u.city, u.address, u.profile_image 
     FROM job_requests j 
     JOIN categories c ON j.category_id = c.id 
     JOIN users u ON j.homeowner_id = u.id 
@@ -56,7 +32,38 @@ if (!$job) {
     die("Job not found.");
 }
 
-// 3. فحص ما إذا كان الفني قد قدم عرضاً سابقاً لعرض رسالة تنبيه
+// 3. معالجة تقديم العرض (Bid)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_bid'])) {
+    $price = $_POST['price'];
+    $proposal = trim($_POST['proposal']);
+
+    // التأكد أن الفني لم يقدم عرضاً مسبقاً
+    $check_stmt = $pdo->prepare("SELECT id FROM bids WHERE job_id = ? AND technician_id = ?");
+    $check_stmt->execute([$job_id, $technician_id]);
+    
+    if ($check_stmt->rowCount() > 0) {
+        $error = "You have already submitted a bid for this job.";
+    } elseif (empty($price) || empty($proposal)) {
+        $error = "Please provide both a price and a proposal.";
+    } else {
+        $sql = "INSERT INTO bids (job_id, technician_id, price, proposal) VALUES (?, ?, ?, ?)";
+        $stmt = $pdo->prepare($sql);
+        if ($stmt->execute([$job_id, $technician_id, $price, $proposal])) {
+            $success = "Your bid has been submitted successfully!";
+
+            // توليد إشعار لصاحب المنزل (الآن $job['owner_id'] معرف ولن يسبب خطأ)
+            $notif_title = "New Bid Received!";
+            $notif_message = "A technician has placed a bid of $" . $price . " on your job.";
+            $notif_link = "Homeowner/view_bids.php?job_id=" . $job_id;
+            $notif_stmt = $pdo->prepare("INSERT INTO notifications (user_id, title, message, link) VALUES (?, ?, ?, ?)");
+            $notif_stmt->execute([$job['owner_id'], $notif_title, $notif_message, $notif_link]);
+        } else {
+            $error = "Something went wrong. Please try again.";
+        }
+    }
+}
+
+// 4. فحص ما إذا كان الفني قد قدم عرضاً سابقاً لعرض رسالة تنبيه في الـ HTML
 $stmt_bid_check = $pdo->prepare("SELECT * FROM bids WHERE job_id = ? AND technician_id = ?");
 $stmt_bid_check->execute([$job_id, $technician_id]);
 $existing_bid = $stmt_bid_check->fetch();
@@ -103,7 +110,7 @@ include_once '../includes/navbar.php';
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Your Proposal / Comment</label>
-                                    <textarea name="proposal" class="form-control" rows="4" placeholder="Explain how you will fix the problem and when you can start..." required></textarea>
+                                    <textarea name="proposal" class="form-control" rows="4" placeholder="Explain how you will fix the problem..." required></textarea>
                                 </div>
                                 <button type="submit" name="submit_bid" class="btn btn-primary w-100 py-2 fw-bold">Submit Bid</button>
                             </form>
@@ -121,9 +128,12 @@ include_once '../includes/navbar.php';
             <div class="card shadow-sm border-0 sticky-top" style="top: 100px;">
                 <div class="card-body p-4 text-center">
                     <div class="mb-3">
-                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                            <i class="bi bi-person text-primary fs-1"></i>
-                        </div>
+                        <?php 
+                            $img_src = (!empty($job['profile_image']) && $job['profile_image'] !== 'default.png') 
+                                ? "../assets/images/avatars/" . $job['profile_image'] 
+                                : "../assets/images/logo.png";
+                        ?>
+                        <img src="<?php echo htmlspecialchars($img_src); ?>" alt="Owner Profile" class="rounded-circle object-fit-cover shadow-sm border" style="width: 80px; height: 80px;">
                     </div>
                     <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($job['first_name'] . ' ' . $job['last_name']); ?></h5>
                     <p class="text-muted small mb-3">Homeowner</p>
@@ -132,7 +142,6 @@ include_once '../includes/navbar.php';
                         <a href="../chat.php?user_id=<?php echo $job['owner_id']; ?>" class="btn btn-outline-primary fw-bold py-2">
                             <i class="bi bi-chat-dots me-2"></i> Chat with Owner
                         </a>
-                        <p class="text-muted x-small mt-2">Ask for more details or photos before bidding.</p>
                     </div>
                 </div>
             </div>

@@ -14,20 +14,19 @@ $stmt = $pdo->prepare("SELECT category_id FROM user_interests WHERE user_id = ?"
 $stmt->execute([$user_id]);
 $my_interests = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-// حساب نقاط التطابق (Match Score) بناءً على الاهتمامات المشتركة
+// حساب نقاط التطابق
 $match_sql = "0";
 if (count($my_interests) > 0) {
-    // حماية الأرقام لتجنب ثغرات SQL Injection
     $safe_interests = implode(',', array_map('intval', $my_interests));
     $match_sql = "(SELECT COUNT(*) FROM user_interests ui2 WHERE ui2.user_id = u.id AND ui2.category_id IN ($safe_interests))";
 }
 
-// 2. استقبال متغيرات البحث والفلترة (إن وجدت)
+// 2. استقبال متغيرات البحث
 $search = trim($_GET['search'] ?? '');
 $category_filter = $_GET['category'] ?? '';
 
-// 3. بناء الاستعلام الديناميكي لجلب بيانات الفنيين
-$query = "SELECT u.id, u.first_name, u.last_name, u.city, t.bio, t.experience_years,
+// 3. بناء الاستعلام الديناميكي (تم إضافة u.profile_image)
+$query = "SELECT u.id, u.first_name, u.last_name, u.city, u.profile_image, t.bio, t.experience_years,
           GROUP_CONCAT(c.name SEPARATOR ' • ') as specialties,
           $match_sql as match_score
           FROM users u
@@ -50,14 +49,12 @@ if (!empty($category_filter)) {
     $params[] = $category_filter;
 }
 
-// تجميع النتائج لكل فني وترتيبها حسب نسبة التطابق ثم الأحدث
 $query .= " GROUP BY u.id ORDER BY match_score DESC, u.created_at DESC";
 
 $stmt = $pdo->prepare($query);
 $stmt->execute($params);
 $technicians = $stmt->fetchAll();
 
-// جلب الأقسام لقائمة الفلترة المنسدلة
 $stmt_cats = $pdo->query("SELECT id, name FROM categories ORDER BY name ASC");
 $categories = $stmt_cats->fetchAll();
 
@@ -73,16 +70,19 @@ include_once '../includes/navbar.php';
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 mb-5 bg-light">
-        <div class="card-body">
+    <div class="card shadow-sm border-0 mb-5 bg-white rounded-4">
+        <div class="card-body p-4">
             <form action="feed.php" method="GET" class="row g-3 align-items-end">
                 <div class="col-md-5">
-                    <label class="form-label fw-bold">Search</label>
-                    <input type="text" name="search" class="form-control" placeholder="Search by name or bio..." value="<?php echo htmlspecialchars($search); ?>">
+                    <label class="form-label fw-bold text-muted small">Search Technicians</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control border-start-0 bg-light" placeholder="Search by name or bio..." value="<?php echo htmlspecialchars($search); ?>">
+                    </div>
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label fw-bold">Filter by Category</label>
-                    <select name="category" class="form-select">
+                    <label class="form-label fw-bold text-muted small">Filter by Category</label>
+                    <select name="category" class="form-select bg-light">
                         <option value="">All Categories</option>
                         <?php foreach ($categories as $cat): ?>
                             <option value="<?php echo $cat['id']; ?>" <?php echo ($category_filter == $cat['id']) ? 'selected' : ''; ?>>
@@ -102,36 +102,44 @@ include_once '../includes/navbar.php';
         <?php if (count($technicians) > 0): ?>
             <?php foreach ($technicians as $tech): ?>
                 <div class="col-md-6 col-lg-4">
-                    <div class="card shadow-sm h-100 border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="fw-bold mb-0 text-primary">
-                                    <?php echo htmlspecialchars($tech['first_name'] . ' ' . $tech['last_name']); ?>
-                                </h5>
-                                <?php if ($tech['match_score'] > 0): ?>
-                                    <span class="badge bg-success" title="Based on your profile interests">Recommended</span>
-                                <?php endif; ?>
+                    <div class="card shadow-sm h-100 border-0 rounded-4 card-hover">
+                        <div class="card-body p-4 d-flex flex-column">
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <?php 
+                                    $img_src = (!empty($tech['profile_image']) && $tech['profile_image'] !== 'default.png') 
+                                        ? "../assets/images/avatars/" . $tech['profile_image'] 
+                                        : "../assets/images/logo.png";
+                                ?>
+                                <img src="<?php echo htmlspecialchars($img_src); ?>" alt="Avatar" class="rounded-circle object-fit-cover shadow-sm border" style="width: 65px; height: 65px;">
+                                <div class="ms-3">
+                                    <h5 class="fw-bold mb-0 text-dark">
+                                        <?php echo htmlspecialchars($tech['first_name'] . ' ' . $tech['last_name']); ?>
+                                    </h5>
+                                    <?php if ($tech['match_score'] > 0): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success mt-1" style="font-size: 0.7rem;">Recommended</span>
+                                    <?php endif; ?>
+                                </div>
                             </div>
 
-                            <p class="text-muted small mb-3">
-                                <i class="text-secondary">📍 <?php echo htmlspecialchars($tech['city'] ?? 'Location not set'); ?></i> |
-                                <strong><?php echo $tech['experience_years']; ?> Yrs Exp.</strong>
-                            </p>
+                            <div class="d-flex text-muted small mb-3 bg-light p-2 rounded">
+                                <div class="me-3"><i class="bi bi-geo-alt-fill text-danger me-1"></i> <?php echo htmlspecialchars($tech['city'] ?? 'Unknown'); ?></div>
+                                <div><i class="bi bi-briefcase-fill text-primary me-1"></i> <?php echo $tech['experience_years']; ?> Yrs Exp.</div>
+                            </div>
 
-                            <p class="card-text small text-truncate-2" style="line-height: 1.4;">
+                            <p class="card-text text-muted mb-3" style="font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-clamp: 3; overflow: hidden;">
                                 <?php echo htmlspecialchars($tech['bio']); ?>
                             </p>
 
-                            <div class="mb-4">
-                                <span class="text-muted" style="font-size: 12px; font-weight: 600;">SPECIALTIES:</span><br>
-                                <span class="badge bg-light text-dark border w-100 text-start overflow-hidden text-truncate">
-                                    <?php echo htmlspecialchars($tech['specialties'] ?? 'Not specified'); ?>
+                            <div class="mb-4 mt-auto">
+                                <span class="badge bg-light text-secondary border w-100 text-start overflow-hidden text-truncate py-2">
+                                    <i class="bi bi-tools me-1"></i> <?php echo htmlspecialchars($tech['specialties'] ?? 'No specialties'); ?>
                                 </span>
                             </div>
 
-                            <div class="d-flex gap-2 mt-auto">
-                                <button class="btn btn-outline-primary w-50 btn-sm">View Profile</button>
-                                <a href="../chat.php?user_id=<?php echo $tech['id']; ?>" class="btn btn-primary w-50 btn-sm">Chat</a>
+                            <div class="d-flex gap-2">
+                                <a href="technician_profile.php?id=<?php echo $tech['id']; ?>" class="btn btn-outline-primary w-50 fw-bold">View Profile</a>
+                                <a href="../chat.php?user_id=<?php echo $tech['id']; ?>" class="btn btn-primary w-50 fw-bold"><i class="bi bi-chat-dots me-1"></i> Chat</a>
                             </div>
                         </div>
                     </div>
@@ -139,9 +147,12 @@ include_once '../includes/navbar.php';
             <?php endforeach; ?>
         <?php else: ?>
             <div class="col-12 text-center py-5">
-                <h4 class="text-muted">No technicians found</h4>
-                <p>Try adjusting your search criteria or removing filters.</p>
-                <a href="feed.php" class="btn btn-outline-secondary mt-2">Clear Filters</a>
+                <div class="bg-white p-5 rounded-4 shadow-sm">
+                    <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                    <h4 class="fw-bold text-dark">No technicians found</h4>
+                    <p class="text-muted">Try adjusting your search criteria or removing filters.</p>
+                    <a href="feed.php" class="btn btn-primary px-4 mt-2">Clear Filters</a>
+                </div>
             </div>
         <?php endif; ?>
     </div>
