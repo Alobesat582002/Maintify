@@ -12,40 +12,68 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['final_submit'])) {
     $first_name   = trim($_POST['first_name']);
     $last_name    = trim($_POST['last_name']);
-    $name         = $first_name . ' ' . $last_name;
     $email        = trim($_POST['email']);
     $password     = $_POST['password'];
     $phone        = trim($_POST['phone']);
     $role         = $_POST['role'];
     $country      = trim($_POST['country']);
     $city         = trim($_POST['city']);
-    $address      = trim($_POST['address'] ?? '');
-    $interests    = isset($_POST['interests']) ? implode(',', $_POST['interests']) : '';
+    
+    // الجافاسكربت يرسل الاهتمامات كنص (مثال: "1,3,4")، يجب تحويله لمصفوفة
+    $interests_str = trim($_POST['interests'] ?? '');
+    $interests     = !empty($interests_str) ? explode(',', $interests_str) : [];
+    
     $specialty    = trim($_POST['specialty'] ?? '');
-    $experience   = trim($_POST['experience'] ?? '');
+    $experience   = trim($_POST['experience'] ?? 0);
 
     if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($role)) {
         $error = "Please fill all required fields.";
     } else {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
+        
         if ($stmt->rowCount() > 0) {
             $error = "This email is already registered!";
         } else {
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (name, email, password, role, country, city, phone, address, interests, specialty, experience_years) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $pdo->prepare($sql);
-            if ($stmt->execute([$name, $email, $hashed_password, $role, $country, $city, $phone, $address, $interests, $specialty, $experience])) {
+            try {
+                $pdo->beginTransaction();
+                
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                
+                // 1. إدخال المستخدم في جدول users
+                $sql = "INSERT INTO users (first_name, last_name, email, phone, password, role, country, city) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$first_name, $last_name, $email, $phone, $hashed_password, $role, $country, $city]);
+                
+                $user_id = $pdo->lastInsertId();
+
+                // 2. إدخال بيانات الفني في technician_profiles
+                if ($role === 'technician') {
+                    $stmt_tech = $pdo->prepare("INSERT INTO technician_profiles (user_id, bio, experience_years) VALUES (?, ?, ?)");
+                    $stmt_tech->execute([$user_id, $specialty, $experience]);
+                }
+
+                // 3. إدخال الاهتمامات في user_interests
+                if ($role === 'homeowner' && !empty($interests)) {
+                    $stmt_int = $pdo->prepare("INSERT INTO user_interests (user_id, category_id) VALUES (?, ?)");
+                    foreach ($interests as $cat_id) {
+                        $stmt_int->execute([$user_id, $cat_id]);
+                    }
+                }
+
+                $pdo->commit();
                 $success = "true";
-            } else {
-                $error = "Something went wrong. Please try again.";
+                
+            } catch (Exception $e) {
+                $pdo->rollBack();
+                $error = "Database Error: " . $e->getMessage();
             }
         }
     }
 }
 
-// Fetch categories from DB
+// Fetch categories from DB for the HTML form
 $categories = [];
 try {
     $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
@@ -322,7 +350,6 @@ include_once 'includes/navbar.php';
 <div class="reg-wrap">
   <div class="reg-card" id="regCard">
 
-    <!-- Progress -->
     <div class="reg-progress" id="progressBar">
       <div class="progress-steps" id="progressSteps"></div>
     </div>
@@ -333,7 +360,6 @@ include_once 'includes/navbar.php';
     </div>
     <?php endif; ?>
 
-    <!-- Success Screen -->
     <div class="success-screen <?php echo $success === 'true' ? 'show' : ''; ?>" id="successScreen">
       <div class="success-icon">🎉</div>
       <h3>Account Created!</h3>
@@ -341,7 +367,6 @@ include_once 'includes/navbar.php';
       <a href="login.php" class="btn-login-link">Go to Login</a>
     </div>
 
-    <!-- Multi-step Form -->
     <form action="register.php" method="POST" id="regForm" <?php echo $success === 'true' ? 'style="display:none"' : ''; ?>>
       <input type="hidden" name="final_submit" value="1">
       <input type="hidden" name="role" id="roleInput" value="">
@@ -350,7 +375,6 @@ include_once 'includes/navbar.php';
 
       <div class="reg-body">
 
-        <!-- STEP 1: Personal Info -->
         <div class="step-panel" id="step1">
           <h2 class="step-title">Create your account</h2>
           <p class="step-subtitle">Let's start with your basic information</p>
@@ -387,7 +411,6 @@ include_once 'includes/navbar.php';
           <button type="button" class="btn-next" onclick="goNext(1)">Continue →</button>
         </div>
 
-        <!-- STEP 2: Role -->
         <div class="step-panel" id="step2">
           <h2 class="step-title">What brings you here?</h2>
           <p class="step-subtitle">Choose your role to personalize your experience</p>
@@ -413,7 +436,6 @@ include_once 'includes/navbar.php';
           </div>
         </div>
 
-        <!-- STEP 3A: Homeowner Interests -->
         <div class="step-panel" id="step3home">
           <h2 class="step-title">What are you interested in?</h2>
           <p class="step-subtitle">Select all service categories that apply</p>
@@ -441,7 +463,6 @@ include_once 'includes/navbar.php';
           </div>
         </div>
 
-        <!-- STEP 3B: Technician Specialty -->
         <div class="step-panel" id="step3tech">
           <h2 class="step-title">What's your specialty?</h2>
           <p class="step-subtitle">Choose your main field of expertise</p>
@@ -469,7 +490,6 @@ include_once 'includes/navbar.php';
           </div>
         </div>
 
-        <!-- STEP 4A: Homeowner Location -->
         <div class="step-panel" id="step4home">
           <h2 class="step-title">Your location</h2>
           <p class="step-subtitle">Help technicians find you</p>
@@ -501,7 +521,6 @@ include_once 'includes/navbar.php';
           </div>
         </div>
 
-        <!-- STEP 4B: Technician Experience -->
         <div class="step-panel" id="step4tech">
           <h2 class="step-title">Your experience</h2>
           <p class="step-subtitle">Tell clients about your background</p>
@@ -539,10 +558,8 @@ include_once 'includes/navbar.php';
           </div>
         </div>
 
-      </div><!-- reg-body -->
-    </form>
-  </div><!-- reg-card -->
-</div>
+      </div></form>
+  </div></div>
 
 <script>
 const TOTAL_STEPS = 4;

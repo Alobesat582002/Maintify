@@ -1,9 +1,15 @@
 <?php
 require_once 'config/db.php';
 
-// إذا كان مسجل دخول مسبقاً، حوله للصفحة الرئيسية
+// توجيه المستخدم إذا كان مسجل الدخول مسبقاً بناءً على صلاحيته
 if (isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: Admin/dashboard.php");
+    } elseif ($_SESSION['role'] === 'technician') {
+        header("Location: Technician/dashboard.php");
+    } else {
+        header("Location: Homeowner/dashboard.php");
+    }
     exit();
 }
 
@@ -16,20 +22,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($email) || empty($password)) {
         $error = "Please fill in all fields.";
     } else {
-        // البحث عن المستخدم باستخدام الإيميل
+        
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
-        // التحقق من وجود المستخدم ومطابقة كلمة المرور
+        
         if ($user && password_verify($password, $user['password'])) {
-            // حفظ بيانات المستخدم في الجلسة (Session)
+            // حفظ بيانات المستخدم في الجلسة (لاحظ دمج الاسم الأول والأخير)
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['name'] = $user['name'];
+            $_SESSION['name'] = $user['first_name'] . ' ' . $user['last_name'];
             $_SESSION['role'] = $user['role'];
 
-            // توجيه المستخدم للصفحة الرئيسية بعد النجاح
-            header("Location: index.php");
+            
+            if ($user['role'] === 'admin') {
+                header("Location: Admin/dashboard.php");
+            } elseif ($user['role'] === 'technician') {
+                header("Location: Technician/dashboard.php");
+            } else {
+                header("Location: Homeowner/dashboard.php");
+            }
             exit();
         } else {
             $error = "Invalid email or password.";

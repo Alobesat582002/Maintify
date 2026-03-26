@@ -3,9 +3,9 @@ require_once 'config/db.php';
 include_once 'includes/header.php'; // ← ضع رابط main.css هنا داخل header.php
 include_once 'includes/navbar.php';
 
-
 ?>
 <link rel="stylesheet" href="assets/css/main.css">
+
 <!-- ══ HERO ══ -->
 <section class="hero">
 
@@ -27,10 +27,10 @@ include_once 'includes/navbar.php';
 
     <div class="hero-cta">
       <?php if (!isset($_SESSION['user_id'])): ?>
-        <a href="register.php" class="btn btn-accent">ابدأ مجاناً</a>
-        <a href="login.php"    class="btn btn-outline-light">تسجيل الدخول</a>
+        <a href="register.php" class="mbtn mbtn-accent">ابدأ مجاناً</a>
+        <a href="login.php"    class="mbtn mbtn-outline-light">تسجيل الدخول</a>
       <?php else: ?>
-        <a href="dashboard.php" class="btn btn-accent">لوحة التحكم</a>
+        <a href="Homeowner/dashboard.php" class="mbtn mbtn-accent">لوحة التحكم</a>
       <?php endif; ?>
     </div>
   </div>
@@ -186,7 +186,7 @@ include_once 'includes/navbar.php';
         <p class="section-eyebrow">ما نقدمه</p>
         <h2 class="section-title light">خدماتنا</h2>
       </div>
-      <a href="services.php" class="btn btn-outline-light">عرض الكل ←</a>
+      <a href="services.php" class="mbtn mbtn-outline-light">عرض الكل ←</a>
     </div>
 
     <div class="services-grid">
@@ -262,7 +262,7 @@ include_once 'includes/navbar.php';
   <div class="container-main">
     <div class="cta-banner">
       <h2 class="cta-banner-title">جاهز لتجربة صيانة المنزل بشكل مختلف؟</h2>
-      <a href="register.php" class="btn btn-dark">أنشئ حساباً مجانياً ←</a>
+      <a href="register.php" class="mbtn mbtn-dark">أنشئ حساباً مجانياً ←</a>
     </div>
   </div>
 </section>
@@ -325,4 +325,4 @@ include_once 'includes/navbar.php';
 })();
 </script>
 
-<?php include_once 'includes/footer.php'; ?> 
+<?php include_once 'includes/footer.php'; ?>
