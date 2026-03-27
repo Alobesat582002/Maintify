@@ -41,12 +41,12 @@
 .nav-brand-name {
     font-size: 22px !important;
     font-weight: 800 !important;
-    color: var(--text-dark) !important;
+    color: #176FA5!important;
     letter-spacing: -0.5px;
 }
 
 .nav-brand-name span {
-    color: var(--primary);
+    color:   #F36F21;
 }
 
 .navbar-nav .nav-link {

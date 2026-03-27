@@ -36,9 +36,9 @@
                 <div class="col-md-6 mb-3 text-md-end">
                     <h6 class="fw-bold">تابعنا</h6>
                     <div class="social-icons">
-                        <a href="#"><i class="bi bi-facebook"></i></a>
-                        <a href="#"><i class="bi bi-instagram"></i></a>
-                        <a href="#"><i class="bi bi-github"></i></a>
+                        <a href="https://www.facebook.com/"><i class="bi bi-facebook"></i></a>
+                        <a href="https://www.instagram.com/accounts/login/?next=%2F&source=mobile_nav"><i class="bi bi-instagram"></i></a>
+                        <a href="https://github.com/"><i class="bi bi-github"></i></a>
                     </div>
                 </div>
 
