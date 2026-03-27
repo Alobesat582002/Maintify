@@ -23,6 +23,8 @@
     
     <!-- FAVICON -->
     <link rel="icon" type="image/png" href="/Maintify/assets/images/favicon.png">
+
+    <link rel="stylesheet" href="/Maintify/assets/css/foot.css">
     
 </head>
 <body>
