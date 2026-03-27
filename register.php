@@ -688,7 +688,7 @@ function validateStep1() {
     const phoneVal = phonenumber.value.trim();
 
 // خيار 1: رقم أردني (07XXXXXXXX)
-const phoneRegex = /^07[0-9]{8}$/;
+const phoneRegex = /^(\+962|0)7[0-9]{8}$/;
 
 // خيار 2 (بديل): يدعم +962 أو 07
 // const phoneRegex = /^(\+962|0)7[0-9]{8}$/;

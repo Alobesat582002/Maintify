@@ -1,0 +1,317 @@
+/* =============================================
+   Maintify – Auth Styles
+   Theme: Dark Navy + Orange
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+/* ---------- Variables ---------- */
+:root {
+  --navy:        #0a0f1e;
+  --navy-2:      #111827;
+  --navy-card:   #0d1526;
+  --navy-border: rgba(255,255,255,.07);
+  --orange:      #f97316;
+  --orange-2:    #fb923c;
+  --orange-glow: rgba(249,115,22,.25);
+  --text:        #e2e8f0;
+  --text-muted:  #64748b;
+  --input-bg:    rgba(255,255,255,.04);
+  --radius:      14px;
+  --font-body:   system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+  --font-head:   'Syne', sans-serif;
+}
+
+/* ---------- Reset / Base ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---------- Background ---------- */
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%,   rgba(249,115,22,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%,  rgba(30,58,138,.25)  0%, transparent 60%),
+    var(--navy);
+}
+
+/* ---------- Layout ---------- */
+.auth-wrap {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+/* ---------- Card ---------- */
+.glass-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 24px;
+  padding: 2.8rem 2.4rem;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(249,115,22,.06),
+    0 24px 60px rgba(0,0,0,.5),
+    0 0 80px rgba(249,115,22,.04);
+}
+
+/* Orange accent bar at top */
+.glass-card::before {
+  content: '';
+  display: block;
+  height: 3px;
+  width: 60px;
+  background: linear-gradient(90deg, var(--orange), var(--orange-2));
+  border-radius: 2px;
+  margin-bottom: 1.8rem;
+}
+
+/* ---------- Logo ---------- */
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-bottom: 2rem;
+}
+
+.logo-name {
+  font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.logo-name span {
+  color: var(--orange);
+  font-style: italic;
+}
+
+/* .logo-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--orange);
+  border-radius: 50%;
+  margin-top: .2rem;
+  box-shadow: 0 0 8px var(--orange);
+} */
+
+/* ---------- Input icon color ---------- */
+.input-icon svg { color: var(--text-muted); }
+
+/* ---------- Headings ---------- */
+.card-title {
+   font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.5px;
+  line-height: 1.2;
+}
+
+.card-sub {
+  font-size: .9rem;
+  color: var(--text-muted);
+  margin-top: .35rem;
+  margin-bottom: 1.8rem;
+}
+
+/* ---------- Error Alert ---------- */
+.alert-err {
+  background: rgba(239,68,68,.1);
+  border: 1px solid rgba(239,68,68,.25);
+  color: #fca5a5;
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  font-size: .875rem;
+  margin-bottom: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.alert-err::before { content: '⚠'; font-size: .95rem; }
+
+/* ---------- Form Elements ---------- */
+.form-group { margin-bottom: 1.2rem; }
+
+.form-label {
+  display: block;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .55rem;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: .9rem;
+  font-size: .9rem;
+  pointer-events: none;
+  opacity: .5;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--navy-border);
+  border-radius: var(--radius);
+  padding: .78rem .9rem .78rem 2.4rem;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: .95rem;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  outline: none;
+}
+
+.form-input::placeholder { color: var(--text-muted); opacity: .6; }
+
+.form-input:focus {
+  border-color: var(--orange);
+  background: rgba(249,115,22,.04);
+  box-shadow: 0 0 0 3px var(--orange-glow);
+}
+
+/* Password toggle */
+.pw-toggle {
+  position: absolute;
+  right: .75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: .95rem;
+  opacity: .5;
+  transition: opacity .2s;
+  padding: 0;
+  line-height: 1;
+}
+.pw-toggle:hover { opacity: 1; }
+
+/* Forgot link */
+.forgot-row { text-align: right; margin-top: .5rem; }
+
+.forgot-link {
+  font-size: .8rem;
+  color: var(--orange-2);
+  text-decoration: none;
+  transition: color .2s;
+}
+.forgot-link:hover { color: var(--orange); text-decoration: underline; }
+
+/* ---------- Primary Button ---------- */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  width: 100%;
+  padding: .85rem;
+  background: linear-gradient(135deg, var(--orange), var(--orange-2));
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform .15s, box-shadow .2s, filter .2s;
+  box-shadow: 0 6px 24px var(--orange-glow);
+  margin-top: 1.4rem;
+}
+
+.btn-primary:hover  { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+/* ---------- Divider ---------- */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  color: var(--text-muted);
+  font-size: .8rem;
+  margin: 1.5rem 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--navy-border);
+}
+
+/* ---------- Social Buttons ---------- */
+.social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .7rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--navy-border);
+  background: var(--input-bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: .875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background .2s, border-color .2s, transform .15s;
+}
+
+.btn-social:hover {
+  background: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.15);
+  transform: translateY(-1px);
+}
+
+.social-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* ---------- Bottom Row ---------- */
+.bottom-row {
+  text-align: center;
+  font-size: .875rem;
+  color: var(--text-muted);
+  margin-top: 1.6rem;
+}
+
+.bottom-row a {
+  color: var(--orange);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .2s;
+}
+
+.bottom-row a:hover { color: var(--orange-2); text-decoration: underline; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 480px) {
+  .glass-card { padding: 2rem 1.5rem; border-radius: 18px; }
+  .card-title { font-size: 1.5rem; }
+}
