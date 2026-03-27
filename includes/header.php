@@ -27,4 +27,4 @@
     <link rel="stylesheet" href="/Maintify/assets/css/foot.css">
     
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100" >

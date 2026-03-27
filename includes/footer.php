@@ -3,7 +3,7 @@
         <div class="row gy-4 mb-4">
             
             <div class="col-lg-4 col-md-6">
-                <div class="footer-brand">Maint<span>ify</span>.</div>
+                <div class="footer-brand" >Maint<span>ify</span></div>
                 <p class="footer-desc">
                     منصة لإدارة الصيانة بسهولة واحترافية. نربط أصحاب المنازل بأفضل الفنيين لتقديم حلول ذكية وخدمات منزلية أسرع.
                 </p>
