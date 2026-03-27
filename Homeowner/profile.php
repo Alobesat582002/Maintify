@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         try {
             $pdo->beginTransaction();
 
-            // أ. تحديث بيانات المستخدم (مع أو بدون الصورة)
+            // أ. تحديث بيانات المستخدم
             if ($profile_image) {
                 $sql = "UPDATE users SET first_name = ?, last_name = ?, phone = ?, country = ?, city = ?, address = ?, profile_image = ? WHERE id = ?";
                 $stmt = $pdo->prepare($sql);
@@ -104,102 +104,101 @@ include_once '../includes/header.php';
 include_once '../includes/navbar.php';
 ?>
 
-<div class="container mt-5" style="min-height: 70vh;">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>My Profile</h2>
-                <a href="dashboard.php" class="btn btn-outline-secondary">← Back to Dashboard</a>
-            </div>
+<div class="google-wrapper">
+    <?php include_once '../includes/user_sidebar.php'; ?>
 
-            <div class="card shadow-sm border-0 mb-5">
-                <div class="card-body p-4">
-                    <?php if(!empty($error)): ?>
-                        <div class="alert alert-danger"><?php echo $error; ?></div>
-                    <?php endif; ?>
-                    <?php if(!empty($success)): ?>
-                        <div class="alert alert-success"><?php echo $success; ?></div>
-                    <?php endif; ?>
-
-                    <form action="profile.php" method="POST" enctype="multipart/form-data" onsubmit="return confirm('Are you sure you want to save these changes?');">
-                        
-                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
-                            <?php 
-                                $img_src = (!empty($user['profile_image']) && $user['profile_image'] !== 'default.png') 
-                                    ? "../assets/images/avatars/" . $user['profile_image'] 
-                                    : "../assets/images/logo.png";
-                            ?>
-                            <img src="<?php echo htmlspecialchars($img_src); ?>" id="profilePreview" alt="Profile" class="rounded-circle object-fit-cover shadow-sm border" style="width: 100px; height: 100px;">
-                            <div class="ms-4">
-                                <label class="form-label fw-bold d-block">Profile Photo</label>
-                                <input class="form-control form-control-sm w-auto" type="file" name="profile_image" id="profileInput" accept="image/*">
-                                <small class="text-muted d-block mt-1">Max size: 5MB. Formats: JPG, PNG, WEBP.</small>
-                            </div>
-                        </div>
-
-                        <h5 class="mb-3 text-primary fw-bold">Personal Information</h5>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">First Name *</label>
-                                <input type="text" name="first_name" class="form-control" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name *</label>
-                                <input type="text" name="last_name" class="form-control" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
-                            </div>
-                        </div>
-
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label">Email Address (Read Only)</label>
-                                <input type="email" class="form-control text-muted" value="<?php echo htmlspecialchars($user['email']); ?>" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Phone Number</label>
-                                <input type="text" name="phone" class="form-control" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
-                            </div>
-                        </div>
-
-                        <h5 class="mb-3 text-primary fw-bold">Location Details</h5>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Country</label>
-                                <input type="text" name="country" class="form-control" value="<?php echo htmlspecialchars($user['country'] ?? ''); ?>">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">City</label>
-                                <input type="text" name="city" class="form-control" value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label">Detailed Address</label>
-                            <input type="text" name="address" class="form-control" placeholder="Street name, Building number..." value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>">
-                        </div>
-
-                        <h5 class="mb-3 text-primary fw-bold">My Interests (Smart Feed Preferences)</h5>
-                        <p class="text-muted small mb-3">Select the services you are most interested in. We will use this to show you relevant technicians.</p>
-                        
-                        <div class="row g-3 mb-4">
-                            <?php foreach($all_categories as $cat): ?>
-                                <?php $is_checked = in_array($cat['id'], $current_interests) ? 'checked' : ''; ?>
-                                <div class="col-md-6">
-                                    <div class="form-check border rounded p-2">
-                                        <input class="form-check-input ms-1" type="checkbox" name="interests[]" value="<?php echo $cat['id']; ?>" id="cat_<?php echo $cat['id']; ?>" <?php echo $is_checked; ?>>
-                                        <label class="form-check-label ms-2 w-100" for="cat_<?php echo $cat['id']; ?>">
-                                            <strong><?php echo htmlspecialchars($cat['name']); ?></strong><br>
-                                            <span class="text-muted small"><?php echo htmlspecialchars($cat['description']); ?></span>
-                                        </label>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Save Changes</button>
-                    </form>
-                </div>
-            </div>
+    <main class="google-content">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1"><?php echo $lang['my_profile']; ?></h3>
         </div>
-    </div>
+
+        <div class="google-card p-4 mx-auto" style="max-width: 800px;">
+            <?php if(!empty($error)): ?>
+                <div class="alert alert-danger rounded-4"><?php echo $error; ?></div>
+            <?php endif; ?>
+            <?php if(!empty($success)): ?>
+                <div class="alert alert-success rounded-4 fw-bold"><i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?></div>
+            <?php endif; ?>
+
+            <form action="profile.php" method="POST" enctype="multipart/form-data" onsubmit="return confirm('<?php echo $lang['confirm_save_changes']; ?>');">
+                
+                <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                    <?php 
+                        $img_src = (!empty($user['profile_image']) && $user['profile_image'] !== 'default.png') 
+                            ? "../assets/images/avatars/" . $user['profile_image'] 
+                            : "../assets/images/logo.png";
+                    ?>
+                    <img src="<?php echo htmlspecialchars($img_src); ?>" id="profilePreview" alt="Profile" class="rounded-circle object-fit-cover shadow-sm border" style="width: 100px; height: 100px;">
+                    <div class="ms-4">
+                        <label class="form-label fw-bold d-block text-dark"><?php echo $lang['profile_photo']; ?></label>
+                        <input class="form-control form-control-sm w-auto rounded-3" type="file" name="profile_image" id="profileInput" accept="image/*">
+                        <small class="text-muted d-block mt-1"><?php echo $lang['max_size_note']; ?></small>
+                    </div>
+                </div>
+
+                <h6 class="mb-3 text-primary fw-bold"><?php echo $lang['personal_info']; ?></h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium"><?php echo $lang['first_name']; ?> *</label>
+                        <input type="text" name="first_name" class="form-control rounded-3" value="<?php echo htmlspecialchars($user['first_name']); ?>" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium"><?php echo $lang['last_name']; ?> *</label>
+                        <input type="text" name="last_name" class="form-control rounded-3" value="<?php echo htmlspecialchars($user['last_name']); ?>" required>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium"><?php echo $lang['email_readonly']; ?></label>
+                        <input type="email" class="form-control rounded-3 text-muted bg-light" value="<?php echo htmlspecialchars($user['email']); ?>" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium"><?php echo $lang['phone_number']; ?></label>
+                        <input type="text" name="phone" class="form-control rounded-3" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" dir="ltr">
+                    </div>
+                </div>
+
+                <h6 class="mb-3 text-primary fw-bold mt-4"><?php echo $lang['location_details']; ?></h6>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium"><?php echo $lang['country']; ?></label>
+                        <input type="text" name="country" class="form-control rounded-3" value="<?php echo htmlspecialchars($user['country'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-medium"><?php echo $lang['city']; ?></label>
+                        <input type="text" name="city" class="form-control rounded-3" value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-medium"><?php echo $lang['detailed_address']; ?></label>
+                    <input type="text" name="address" class="form-control rounded-3" placeholder="<?php echo $lang['address_placeholder']; ?>" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>">
+                </div>
+
+                <h6 class="mb-2 text-primary fw-bold mt-4"><?php echo $lang['my_interests']; ?></h6>
+                <p class="text-muted small mb-3"><?php echo $lang['interests_hint']; ?></p>
+                
+                <div class="row g-3 mb-4">
+                    <?php foreach($all_categories as $cat): ?>
+                        <?php $is_checked = in_array($cat['id'], $current_interests) ? 'checked' : ''; ?>
+                        <div class="col-md-6">
+                            <div class="form-check border rounded-4 p-3 h-100 bg-light bg-opacity-50">
+                                <input class="form-check-input ms-1 mt-1" type="checkbox" name="interests[]" value="<?php echo $cat['id']; ?>" id="cat_<?php echo $cat['id']; ?>" <?php echo $is_checked; ?>>
+                                <label class="form-check-label ms-2 w-100" for="cat_<?php echo $cat['id']; ?>">
+                                    <strong class="d-block mb-1 text-dark"><?php echo htmlspecialchars($cat['name']); ?></strong>
+                                    <span class="text-muted small" style="line-height: 1.4; display: block;"><?php echo htmlspecialchars($cat['description']); ?></span>
+                                </label>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="pt-3 border-top">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill"><?php echo $lang['save_changes']; ?></button>
+                </div>
+            </form>
+        </div>
+    </main>
 </div>
 
 <script>

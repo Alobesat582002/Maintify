@@ -1,7 +1,6 @@
 <?php
 require_once '../config/db.php';
 
-// حماية الصفحة
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'homeowner') {
     header("Location: ../login.php");
     exit();
@@ -9,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'homeowner') {
 
 $user_id = $_SESSION['user_id'];
 
-// 1. إحصائيات سريعة للوحة التحكم
+// إحصائيات
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM job_requests WHERE homeowner_id = ? AND status = 'open'");
 $stmt->execute([$user_id]);
 $open_jobs = $stmt->fetchColumn();
@@ -27,7 +26,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$user_id]);
 $total_bids_received = $stmt->fetchColumn();
 
-// 2. جلب آخر 5 طلبات أضافها (Recent Activity)
+// آخر الطلبات
 $stmt = $pdo->prepare("
     SELECT j.id, j.title, j.status, j.created_at, c.name as category_name,
            (SELECT COUNT(*) FROM bids WHERE job_id = j.id) as bids_count
@@ -44,130 +43,100 @@ include_once '../includes/header.php';
 include_once '../includes/navbar.php';
 ?>
 
-<style>
-    /* تأثيرات حركية وحدود للصناديق */
-    .card-hover {
-        transition: all 0.3s ease;
-        border: 1px solid #e5e7eb !important; /* لون حد خفيف وأنيق */
-    }
-    .card-hover:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
-        border-color: #d1d5db !important;
-    }
-    .table-hover tbody tr {
-        transition: background-color 0.2s ease;
-    }
-    .table-hover tbody tr:hover {
-        background-color: #f8fafc;
-    }
-</style>
+<div class="google-wrapper">
+    <?php include_once '../includes/user_sidebar.php'; ?>
 
-<div class="container mt-5 mb-5" style="min-height: 70vh;">
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h2 class="fw-bold mb-1">Welcome back, <?php echo htmlspecialchars($_SESSION['name']); ?>! 👋</h2>
-            <p class="text-muted">Here is an overview of your recent home maintenance activity.</p>
+    <main class="google-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1"><?php echo $lang['welcome_back']; ?>, <?php echo htmlspecialchars($_SESSION['name']); ?></h3>
+                <p class="text-muted small"><?php echo $lang['dashboard_overview']; ?></p>
+            </div>
+            <a href="post_job.php" class="btn btn-primary rounded-pill px-4 fw-bold">
+                <i class="bi bi-plus-lg me-1"></i> <?php echo $lang['post_job']; ?>
+            </a>
         </div>
-        <a href="post_job.php" class="btn btn-primary fw-bold px-4 py-2 shadow-sm rounded-3">
-            <i class="bi bi-plus-lg me-2"></i>Post New Job
-        </a>
-    </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card shadow-sm rounded-4 h-100 bg-white card-hover">
-                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="google-card p-4 d-flex justify-content-between align-items-center h-100">
                     <div>
-                        <p class="text-muted fw-bold mb-1 text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Open Requests</p>
+                        <p class="text-muted fw-bold mb-1 small text-uppercase"><?php echo $lang['open_requests']; ?></p>
                         <h2 class="fw-bold mb-0 text-primary"><?php echo $open_jobs; ?></h2>
-                        <a href="my_jobs.php" class="text-primary text-decoration-none small fw-bold mt-2 d-inline-block">View all →</a>
                     </div>
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-folder2-open fs-3"></i>
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-folder2-open fs-4"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm rounded-4 h-100 bg-white card-hover">
-                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div class="col-md-4">
+                <div class="google-card p-4 d-flex justify-content-between align-items-center h-100">
                     <div>
-                        <p class="text-muted fw-bold mb-1 text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Proposals Received</p>
+                        <p class="text-muted fw-bold mb-1 small text-uppercase"><?php echo $lang['proposals_received']; ?></p>
                         <h2 class="fw-bold mb-0 text-warning"><?php echo $total_bids_received; ?></h2>
-                        <a href="my_jobs.php" class="text-warning text-decoration-none small fw-bold mt-2 d-inline-block">Check bids →</a>
                     </div>
-                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-file-earmark-text fs-3"></i>
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-file-earmark-text fs-4"></i>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card shadow-sm rounded-4 h-100 bg-white card-hover">
-                <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div class="col-md-4">
+                <div class="google-card p-4 d-flex justify-content-between align-items-center h-100">
                     <div>
-                        <p class="text-muted fw-bold mb-1 text-uppercase" style="font-size: 12px; letter-spacing: 1px;">Active Orders</p>
+                        <p class="text-muted fw-bold mb-1 small text-uppercase"><?php echo $lang['active_orders']; ?></p>
                         <h2 class="fw-bold mb-0 text-success"><?php echo $in_progress_jobs; ?></h2>
-                        <a href="active_orders.php" class="text-success text-decoration-none small fw-bold mt-2 d-inline-block">Track status →</a>
                     </div>
-                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                        <i class="bi bi-tools fs-3"></i>
+                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-tools fs-4"></i>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="card shadow-sm border border-light-subtle rounded-4 bg-white">
-        <div class="card-header bg-white border-bottom pt-4 pb-3 px-4 d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0">Recent Job Posts</h5>
-            <a href="my_jobs.php" class="btn btn-sm btn-outline-secondary rounded-3">View All</a>
-        </div>
-        <div class="card-body p-0">
+        <div class="google-card p-0">
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0"><?php echo $lang['recent_job_posts']; ?></h6>
+                <a href="my_jobs.php" class="btn btn-sm btn-light rounded-pill px-3"><?php echo $lang['view_all']; ?></a>
+            </div>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0 m-0">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle mb-0 border-0">
+                    <thead class="bg-light">
                         <tr>
-                            <th class="ps-4 py-3 text-muted small text-uppercase">Job Title</th>
-                            <th class="py-3 text-muted small text-uppercase">Category</th>
-                            <th class="py-3 text-muted small text-uppercase">Date Posted</th>
-                            <th class="py-3 text-muted small text-uppercase text-center">Bids</th>
-                            <th class="py-3 text-muted small text-uppercase">Status</th>
-                            <th class="pe-4 py-3 text-end text-muted small text-uppercase">Action</th>
+                            <th class="ps-4 py-3 text-muted small border-0"><?php echo $lang['job_title']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['category']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['date_posted']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['status']; ?></th>
+                            <th class="pe-4 py-3 text-end text-muted small border-0"><?php echo $lang['action']; ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if(count($recent_jobs) > 0): ?>
                             <?php foreach($recent_jobs as $job): ?>
                                 <tr>
-                                    <td class="ps-4 py-3 fw-bold text-dark"><?php echo htmlspecialchars($job['title']); ?></td>
-                                    <td class="py-3"><span class="badge bg-light text-secondary border"><?php echo htmlspecialchars($job['category_name']); ?></span></td>
-                                    <td class="py-3 text-muted small"><?php echo date('M d, Y', strtotime($job['created_at'])); ?></td>
-                                    <td class="py-3 text-center">
-                                        <span class="badge bg-primary rounded-pill px-3"><?php echo $job['bids_count']; ?></span>
-                                    </td>
-                                    <td class="py-3">
+                                    <td class="ps-4 py-3 fw-bold text-dark border-light"><?php echo htmlspecialchars($job['title']); ?></td>
+                                    <td class="py-3 border-light"><span class="badge bg-light text-secondary border"><?php echo htmlspecialchars($job['category_name']); ?></span></td>
+                                    <td class="py-3 text-muted small border-light"><?php echo date('M d, Y', strtotime($job['created_at'])); ?></td>
+                                    <td class="py-3 border-light">
                                         <?php 
                                             $status_class = 'bg-primary';
                                             if ($job['status'] == 'in-progress') $status_class = 'bg-warning text-dark';
                                             if ($job['status'] == 'completed') $status_class = 'bg-success';
                                             if ($job['status'] == 'cancelled') $status_class = 'bg-danger';
                                         ?>
-                                        <span class="badge <?php echo $status_class; ?>"><?php echo ucfirst($job['status']); ?></span>
+                                        <span class="badge <?php echo $status_class; ?> rounded-pill px-2"><?php echo ucfirst($job['status']); ?></span>
                                     </td>
-                                    <td class="pe-4 py-3 text-end">
-                                        <a href="view_bids.php?job_id=<?php echo $job['id']; ?>" class="btn btn-sm btn-outline-primary fw-bold rounded-3">Manage</a>
+                                    <td class="pe-4 py-3 text-end border-light">
+                                        <a href="view_bids.php?job_id=<?php echo $job['id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold"><?php echo $lang['manage']; ?></a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
+                                <td colspan="5" class="text-center py-5 text-muted border-0">
                                     <i class="bi bi-inbox fs-1 d-block mb-3 text-light-subtle"></i>
-                                    You haven't posted any jobs yet.
+                                    <?php echo $lang['no_jobs_posted']; ?>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -175,7 +144,7 @@ include_once '../includes/navbar.php';
                 </table>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <?php include_once '../includes/footer.php'; ?>

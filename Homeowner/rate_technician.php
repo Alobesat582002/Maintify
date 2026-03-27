@@ -1,7 +1,7 @@
 <?php
 require_once '../config/db.php';
 
-// حماية الواجهة
+// حماية الواجهة: لصاحب المنزل فقط
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'homeowner') {
     header("Location: ../login.php");
     exit();
@@ -63,23 +63,26 @@ include_once '../includes/header.php';
 include_once '../includes/navbar.php';
 ?>
 
-<div class="container mt-5" style="max-width: 600px; min-height: 70vh;">
-    <div class="mb-4">
-        <a href="active_orders.php" class="btn btn-sm btn-outline-secondary mb-3">← Back to Orders</a>
-        <h2 class="fw-bold">Rate Technician</h2>
-        <p class="text-muted">How was your experience working with <?php echo htmlspecialchars($technician['first_name'] . ' ' . $technician['last_name']); ?>?</p>
-    </div>
+<div class="google-wrapper">
+    <?php include_once '../includes/user_sidebar.php'; ?>
 
-    <div class="card shadow-sm border-0 rounded-4 mb-5">
-        <div class="card-body p-4">
-            <?php if($error): ?> <div class="alert alert-danger rounded-3"><?php echo $error; ?></div> <?php endif; ?>
-            <?php if($success): ?> <div class="alert alert-success rounded-3 fw-bold"><i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?></div> <?php endif; ?>
+    <main class="google-content">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-2"><?php echo $lang['rate_technician']; ?></h3>
+            <p class="text-muted">
+                <?php echo $lang['how_was_experience']; ?> <span class="fw-bold text-primary"><?php echo htmlspecialchars($technician['first_name'] . ' ' . $technician['last_name']); ?></span>?
+            </p>
+        </div>
+
+        <div class="google-card p-4 mb-5 mx-auto" style="max-width: 600px;">
+            <?php if($error): ?> <div class="alert alert-danger rounded-4"><?php echo $error; ?></div> <?php endif; ?>
+            <?php if($success): ?> <div class="alert alert-success rounded-4 fw-bold"><i class="bi bi-check-circle-fill me-2"></i><?php echo $success; ?></div> <?php endif; ?>
 
             <?php if (!$existing_review && !$success): ?>
                 <form action="rate_technician.php?job_id=<?php echo $job_id; ?>&tech_id=<?php echo $tech_id; ?>" method="POST">
                     
                     <div class="mb-4 text-center">
-                        <label class="form-label fw-bold d-block mb-3">Select Rating</label>
+                        <label class="form-label fw-bold d-block mb-3"><?php echo $lang['select_rating']; ?></label>
                         <div class="d-flex justify-content-center gap-3" dir="ltr">
                             <?php for($i=1; $i<=5; $i++): ?>
                                 <div>
@@ -93,27 +96,27 @@ include_once '../includes/navbar.php';
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label fw-bold">Your Review</label>
-                        <textarea name="comment" class="form-control rounded-3" rows="4" placeholder="Describe the quality of work, punctuality, and professionalism..." required></textarea>
+                        <label class="form-label fw-bold"><?php echo $lang['your_review']; ?></label>
+                        <textarea name="comment" class="form-control rounded-4 p-3" rows="4" placeholder="<?php echo $lang['review_placeholder']; ?>" required></textarea>
                     </div>
 
-                    <button type="submit" name="submit_review" class="btn btn-primary w-100 py-2 fw-bold rounded-3">Submit Review</button>
+                    <button type="submit" name="submit_review" class="btn btn-primary w-100 py-2 fw-bold rounded-pill"><?php echo $lang['submit_review']; ?></button>
                 </form>
             <?php elseif ($existing_review): ?>
                 <div class="text-center py-4">
-                    <h5 class="fw-bold mb-3">Your Review</h5>
+                    <h5 class="fw-bold mb-3"><?php echo $lang['your_review']; ?></h5>
                     <div class="text-warning fs-3 mb-2">
                         <?php 
                         for ($i=1; $i<=5; $i++) {
-                            echo ($i <= $existing_review['rating']) ? '<i class="bi bi-star-fill"></i> ' : '<i class="bi bi-star text-muted"></i> ';
+                            echo ($i <= $existing_review['rating']) ? '<i class="bi bi-star-fill"></i> ' : '<i class="bi bi-star text-light-subtle"></i> ';
                         }
                         ?>
                     </div>
-                    <p class="text-muted fst-italic">"<?php echo htmlspecialchars($existing_review['comment']); ?>"</p>
+                    <p class="text-muted fst-italic fs-5 mt-3">"<?php echo htmlspecialchars($existing_review['comment']); ?>"</p>
                 </div>
             <?php endif; ?>
         </div>
-    </div>
+    </main>
 </div>
 
 <?php include_once '../includes/footer.php'; ?>

@@ -18,4 +18,6 @@ try {
 } catch (\PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
 }
+
+require_once __DIR__ . '/lang.php';
 ?>

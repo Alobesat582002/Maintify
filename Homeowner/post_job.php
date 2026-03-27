@@ -74,53 +74,52 @@ include_once '../includes/header.php';
 include_once '../includes/navbar.php';
 ?>
 
-<div class="container mt-5" style="min-height: 70vh;">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Post a New Maintenance Job</h2>
-                <a href="dashboard.php" class="btn btn-outline-secondary">← Back to Dashboard</a>
-            </div>
+<div class="google-wrapper">
+    <?php include_once '../includes/user_sidebar.php'; ?>
 
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body p-4">
-                    <?php if(!empty($error)): ?>
-                        <div class="alert alert-danger rounded-3"><?php echo $error; ?></div>
-                    <?php endif; ?>
-                    <?php if(!empty($success)): ?>
-                        <div class="alert alert-success rounded-3 fw-bold"><?php echo $success; ?></div>
-                    <?php endif; ?>
-
-                    <form action="post_job.php" method="POST" onsubmit="return confirm('Are you sure you want to post this job? This will notify relevant technicians.');">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Job Title *</label>
-                            <input type="text" name="title" class="form-control rounded-3" placeholder="e.g., Leaking pipe in the kitchen" value="<?php echo htmlspecialchars($title ?? ''); ?>" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Category *</label>
-                            <select name="category_id" class="form-select rounded-3" required>
-                                <option value="">Select the service category...</option>
-                                <?php foreach($categories as $cat): ?>
-                                    <option value="<?php echo $cat['id']; ?>">
-                                        <?php echo htmlspecialchars($cat['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Description *</label>
-                            <textarea name="description" class="form-control rounded-3" rows="5" placeholder="Describe the problem in detail..." required><?php echo htmlspecialchars($description ?? ''); ?></textarea>
-                            <div class="form-text text-muted">The more details you provide, the better bids you will receive.</div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3 shadow-sm">Post Job Now</button>
-                    </form>
-                </div>
-            </div>
+    <main class="google-content">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1"><?php echo $lang['post_new_job']; ?></h3>
         </div>
-    </div>
+
+        <div class="google-card p-4 mx-auto" style="max-width: 800px;">
+            <?php if(!empty($error)): ?>
+                <div class="alert alert-danger rounded-4"><?php echo $error; ?></div>
+            <?php endif; ?>
+            <?php if(!empty($success)): ?>
+                <div class="alert alert-success rounded-4 fw-bold"><i class="bi bi-check-circle-fill me-2"></i> <?php echo $success; ?></div>
+            <?php endif; ?>
+
+            <form action="post_job.php" method="POST" onsubmit="return confirm('<?php echo $lang['confirm_post_job']; ?>');">
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark"><?php echo $lang['job_title_label']; ?></label>
+                    <input type="text" name="title" class="form-control rounded-4 py-2 bg-light border-0" placeholder="<?php echo $lang['job_title_placeholder']; ?>" value="<?php echo htmlspecialchars($title ?? ''); ?>" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark"><?php echo $lang['category_label']; ?></label>
+                    <select name="category_id" class="form-select rounded-4 py-2 bg-light border-0" required>
+                        <option value=""><?php echo $lang['select_category']; ?></option>
+                        <?php foreach($categories as $cat): ?>
+                            <option value="<?php echo $cat['id']; ?>">
+                                <?php echo htmlspecialchars($cat['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold text-dark"><?php echo $lang['description_label']; ?></label>
+                    <textarea name="description" class="form-control rounded-4 py-2 bg-light border-0" rows="5" placeholder="<?php echo $lang['description_placeholder']; ?>" required><?php echo htmlspecialchars($description ?? ''); ?></textarea>
+                    <div class="form-text text-muted mt-2"><i class="bi bi-info-circle me-1"></i> <?php echo $lang['description_hint']; ?></div>
+                </div>
+
+                <div class="pt-2 border-top mt-4">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill mt-3"><?php echo $lang['post_job_now']; ?></button>
+                </div>
+            </form>
+        </div>
+    </main>
 </div>
 
 <?php include_once '../includes/footer.php'; ?>
