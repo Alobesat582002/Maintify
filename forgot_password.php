@@ -122,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_reset'])) {
         $step = STEP_DONE;
     }
 }
+ 
 ?>
 
 <!DOCTYPE html>

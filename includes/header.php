@@ -25,7 +25,7 @@ $dir = ($lang_code === 'ar') ? 'rtl' : 'ltr';
                 font-family: 'Tajawal', sans-serif !important;
             }
 
-            /* تعديل اتجاه الأيقونات في حالة العربي */
+
             .bi-chevron-right::before {
                 content: "\f284";
             }
@@ -43,7 +43,13 @@ $dir = ($lang_code === 'ar') ? 'rtl' : 'ltr';
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
+    
+    
+
     <link rel="stylesheet" href="/Maintify/assets/css/style.css?v=<?php echo time(); ?>">
+    
+    
+    <link rel="stylesheet" href="/Maintify/assets/css/str.css?v=<?php echo time(); ?>">
 
     <link rel="stylesheet" href="/Maintify/assets/css/nav.css?v=<?php echo time(); ?>">
 

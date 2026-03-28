@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ── View ────────────────────────────────────────────────────────────────────
-include_once 'includes/header.php';
+ include_once 'includes/header.php';
 
 ?>
 

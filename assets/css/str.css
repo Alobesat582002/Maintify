@@ -1,0 +1,40 @@
+     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+        body.d-flex {
+            background-color: #eeeeeeda 
+        }
+
+        
+        .google-card {
+            background-color: #ffffff !important ;  
+            border: 1px solid rgba(187, 92, 4, 0.781) !important; 
+            border-radius: 20px !important; 
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03) !important; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; 
+            padding: 24px !important; 
+        }
+
+        
+        .hover-card:hover, .google-card.hover-card:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        
+        .form-control, .form-select {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 12px !important; 
+            padding: 12px 16px !important; 
+            background-color: #f8fafc !important;
+            color: #1e293b !important;
+            font-size: 0.95rem !important;
+            transition: all 0.2s ease-in-out !important;
+        }
+
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #3b82f6 !important; 
+            background-color: #ffffff !important;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important; 
+        }

@@ -27,7 +27,7 @@
 
 body {
   font-family: var(--font-body);
-  background: var(--navy);
+  background: var(--navy) !important;
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
@@ -344,3 +344,4 @@ body {
   .glass-card { padding: 2rem 1.5rem; border-radius: 18px; }
   .card-title { font-size: 1.5rem; }
 }
+
