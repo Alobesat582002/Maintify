@@ -22,20 +22,18 @@ $success = '';
 
 // ================== STEP 1: EMAIL ==================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_email'])) {
-
     $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
 
     if (!$email) {
-        $error = "Enter a valid email.";
+        $error = $lang['invalid_email'] ?? "Please enter a valid email address.";
     } else {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email=? LIMIT 1");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
         if (!$user) {
-            $error = "No account found.";
+            $error = $lang['account_not_found'] ?? "No account found with that email.";
         } else {
-
             $otp     = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $expires = date('Y-m-d H:i:s', time() + 1800); // 30 دقيقة
 
@@ -45,12 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_email'])) {
                 ON DUPLICATE KEY UPDATE otp=?, expires_at=?, used=0
             ")->execute([$email, $otp, $expires, $otp, $expires]);
 
-            mail($email, "Reset Code", "Your OTP: $otp");
+            // إرسال الإيميل (يفضل لاحقاً استخدام مكتبة مثل PHPMailer لضمان وصوله)
+            mail($email, "Maintify - Password Reset Code", "Your OTP verification code is: $otp");
 
             $_SESSION['reset_email'] = $email;
             $_SESSION['otp_attempts'] = 0;
 
-            $success = "Verification code sent.";
+            $success = $lang['code_sent'] ?? "Verification code has been sent to your email.";
             $step = STEP_OTP;
         }
     }
@@ -58,11 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_email'])) {
 
 // ================== STEP 2: OTP ==================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_otp'])) {
-
     $_SESSION['otp_attempts'] = ($_SESSION['otp_attempts'] ?? 0) + 1;
 
     if ($_SESSION['otp_attempts'] > 5) {
-        die("Too many attempts.");
+        die("Too many attempts. Please try again later.");
     }
 
     $email = $_SESSION['reset_email'] ?? '';
@@ -76,13 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_otp'])) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$row) {
-        $error = "Invalid code.";
+        $error = $lang['invalid_code'] ?? "Invalid verification code.";
         $step  = STEP_OTP;
-
     } elseif (strtotime($row['expires_at']) < time()) {
-        $error = "Code expired.";
+        $error = $lang['expired_code'] ?? "Code has expired. Please request a new one.";
         $step  = STEP_OTP;
-
     } else {
         $_SESSION['reset_verified'] = true;
         $step = STEP_RESET;
@@ -91,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_otp'])) {
 
 // ================== STEP 3: RESET ==================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_reset'])) {
-
     $email = $_SESSION['reset_email'] ?? '';
     $pw    = $_POST['password'] ?? '';
 
@@ -101,15 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_reset'])) {
     }
 
     if (strlen($pw) < 6) {
-        $error = "Weak password.";
+        $error = $lang['weak_password'] ?? "Password must be at least 6 characters.";
         $step  = STEP_RESET;
-
     } elseif ($pw !== $_POST['confirm_password']) {
-        $error = "Passwords do not match.";
+        $error = $lang['password_mismatch'] ?? "Passwords do not match.";
         $step  = STEP_RESET;
-
     } else {
-
         $pdo->prepare("UPDATE users SET password=? WHERE email=?")
             ->execute([password_hash($pw, PASSWORD_DEFAULT), $email]);
 
@@ -122,94 +114,141 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_reset'])) {
         $step = STEP_DONE;
     }
 }
- 
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $current_lang ?? 'en'; ?>" dir="<?php echo ($current_lang ?? 'en') === 'ar' ? 'rtl' : 'ltr'; ?>">
 <head>
-<meta charset="UTF-8">
-<title>Reset Password</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $lang['forgot_password'] ?? 'Reset Password'; ?> - Maintify</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="assets/css/auth.css?v=<?php echo time(); ?>">
 
-<style>
-body {
-  font-family:sans-serif;
-  background:#0f172a;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-
-.card {
-  width:350px;
-  padding:30px;
-  background:#1e293b;
-  border-radius:15px;
-}
-
-input, button {
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-}
-
-button {
-  background:#6366f1;
-  color:white;
-}
-
-.error {color:red;}
-.success {color:lime;}
-</style>
+    <style>
+        /* ستايل إضافي لرسالة النجاح وحقل الـ OTP */
+        .alert-success-custom {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: #86efac;
+            border-radius: 10px;
+            padding: .75rem 1rem;
+            font-size: .875rem;
+            margin-bottom: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .otp-input {
+            letter-spacing: 8px;
+            font-weight: 800;
+            text-align: center;
+            padding-left: 0 !important;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
+<div class="auth-wrap">
+    <div class="glass-card">
+        
+        <a href="index.php" class="logo-wrap" style="text-decoration: none;">
+            <img src="assets/images/logo.png" alt="Maintify" class="logo-img-auth">
+            <h2 class="logo-name"><span class="maint-text">Maint</span><span class="ify-text">ify</span></h2>
+        </a>
 
-<?php if($error): ?><div class="error"><?= $error ?></div><?php endif; ?>
-<?php if($success): ?><div class="success"><?= $success ?></div><?php endif; ?>
+        <?php if($error): ?>
+            <div class="alert-err"><i class="bi bi-exclamation-triangle-fill"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+        <?php if($success): ?>
+            <div class="alert-success-custom"><i class="bi bi-check-circle-fill"></i> <?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
 
-<?php if($step === STEP_EMAIL): ?>
+        <?php if($step === STEP_EMAIL): ?>
+            <h1 class="card-title"><?php echo $lang['forgot_password'] ?? 'Forgot Password?'; ?></h1>
+            <p class="card-sub"><?php echo $lang['forgot_password_desc'] ?? 'No worries, we\'ll send you reset instructions.'; ?></p>
+            
+            <form method="POST">
+                <input type="hidden" name="step_email">
+                <div class="form-group">
+                    <label class="form-label"><?php echo $lang['email_address'] ?? 'Email Address'; ?></label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" class="form-input" placeholder="name@example.com" required autofocus>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <?php echo $lang['send_reset_link'] ?? 'Send Reset Code'; ?> <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </form>
 
-<h2>Forgot Password</h2>
-<form method="POST">
-<input type="hidden" name="step_email">
-<input type="email" name="email" placeholder="Email" required>
-<button>Send Code</button>
-</form>
+        <?php elseif($step === STEP_OTP): ?>
+            <h1 class="card-title"><?php echo $lang['check_email'] ?? 'Check Your Email'; ?></h1>
+            <p class="card-sub">
+                <?php echo $lang['otp_sent_to'] ?? 'We sent a 6-digit code to'; ?> <strong><?= htmlspecialchars($_SESSION['reset_email'] ?? '') ?></strong>
+            </p>
+            
+            <form method="POST">
+                <input type="hidden" name="step_otp">
+                <div class="form-group">
+                    <label class="form-label"><?php echo $lang['verification_code'] ?? 'Verification Code'; ?></label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-shield-lock"></i></span>
+                        <input type="text" name="otp" class="form-input otp-input" placeholder="000000" required autofocus maxlength="6" pattern="\d{6}">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <?php echo $lang['verify_code'] ?? 'Verify Code'; ?> <i class="bi bi-check2-circle ms-2"></i>
+                </button>
+            </form>
 
-<?php elseif($step === STEP_OTP): ?>
+        <?php elseif($step === STEP_RESET): ?>
+            <h1 class="card-title"><?php echo $lang['set_new_password'] ?? 'Set New Password'; ?></h1>
+            <p class="card-sub"><?php echo $lang['new_password_desc'] ?? 'Your new password must be at least 6 characters.'; ?></p>
+            
+            <form method="POST">
+                <input type="hidden" name="step_reset">
+                <div class="form-group">
+                    <label class="form-label"><?php echo $lang['new_password'] ?? 'New Password'; ?></label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" class="form-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><?php echo $lang['confirm_password'] ?? 'Confirm Password'; ?></label>
+                    <div class="input-wrap">
+                        <span class="input-icon"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" name="confirm_password" class="form-input" placeholder="••••••••" required minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <?php echo $lang['update_password'] ?? 'Update Password'; ?> <i class="bi bi-arrow-repeat ms-2"></i>
+                </button>
+            </form>
 
-<h2>Enter Code</h2>
-<form method="POST">
-<input type="hidden" name="step_otp">
-<input type="text" name="otp" placeholder="6-digit code" required>
-<button>Verify</button>
-</form>
+        <?php else: ?>
+            <div class="text-center w-100" style="text-align: center;">
+                <i class="bi bi-check-circle-fill" style="font-size: 4.5rem; color: #22c55e; margin-bottom: 1rem; display: inline-block;"></i>
+                <h1 class="card-title"><?php echo $lang['all_done'] ?? 'All Done!'; ?></h1>
+                <p class="card-sub"><?php echo $lang['password_updated'] ?? 'Your password has been successfully updated.'; ?></p>
+                <a href="login.php" class="btn-primary" style="text-decoration: none;">
+                    <?php echo $lang['back_to_login'] ?? 'Back to Login'; ?> <i class="bi bi-box-arrow-in-right ms-2"></i>
+                </a>
+            </div>
+        <?php endif; ?>
 
-<?php elseif($step === STEP_RESET): ?>
+        <?php if($step !== STEP_DONE): ?>
+            <div class="bottom-row">
+                <?php echo $lang['remember_password'] ?? 'Remember your password?'; ?> <a href="login.php"><?php echo $lang['login'] ?? 'Log in'; ?></a>
+            </div>
+        <?php endif; ?>
 
-<h2>New Password</h2>
-<form method="POST">
-<input type="hidden" name="step_reset">
-<input type="password" name="password" placeholder="Password" required>
-<input type="password" name="confirm_password" placeholder="Confirm Password" required>
-<button>Reset</button>
-</form>
-
-<?php else: ?>
-
-<h2>Done ✅</h2>
-<p>Password updated</p>
-<a href="login.php"><button>Login</button></a>
-
-<?php endif; ?>
-
+    </div>
 </div>
 
 </body>
