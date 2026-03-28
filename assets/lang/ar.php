@@ -415,4 +415,21 @@ $lang = [
     'services_note_title'   => 'خدمات إضافية',
     'services_note_desc'    => 'لا تجد الخدمة التي تبحث عنها؟ تواصل معنا وسنضيفها في أقرب وقت. منصتنا تتوسع باستمرار لتلبية احتياجاتك.',
  
+
+
+    // --- Footer ---
+    'footer_desc' => 'نحن نربطك بأفضل الفنيين المعتمدين لتلبية جميع احتياجات صيانة منزلك. خدمة سريعة، شفافة، وبدون تعقيد.',
+    'footer_quick_links' => 'روابط سريعة',
+    'footer_home' => 'الرئيسية',
+    'footer_about' => 'عن المنصة',
+    'footer_services' => 'الخدمات',
+    'footer_how_it_works' => 'كيف نعمل؟',
+    'footer_support' => 'الدعم والمساعدة',
+    'footer_faq' => 'الأسئلة الشائعة (FAQ)',
+    'footer_help_center' => 'مركز المساعدة',
+    'footer_terms' => 'شروط الاستخدام',
+    'footer_privacy' => 'سياسة الخصوصية',
+    'footer_contact' => 'تواصل معنا',
+    'footer_address' => 'عمّان، الأردن',
+    'footer_copyright' => 'Maintify. جميع الحقوق محفوظة.',
 ];

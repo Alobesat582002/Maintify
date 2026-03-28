@@ -412,4 +412,22 @@ $lang = [
     'srv_security_desc'     => 'Install cameras, smart locks, and alarm systems.',
     'services_note_title'   => 'More Services',
     'services_note_desc'    => "Can't find the service you're looking for? Contact us and we'll add it soon. Our platform is constantly growing to meet your needs.",
-];
+
+    
+// --- Footer ---
+    'footer_desc' => 'We connect you with the best certified technicians to meet all your home maintenance needs. Fast, transparent, and hassle-free service.',
+    'footer_quick_links' => 'Quick Links',
+    'footer_home' => 'Home',
+    'footer_about' => 'About Us',
+    'footer_services' => 'Services',
+    'footer_how_it_works' => 'How it Works?',
+    'footer_support' => 'Support & Help',
+    'footer_faq' => 'FAQ',
+    'footer_help_center' => 'Help Center',
+    'footer_terms' => 'Terms of Service',
+    'footer_privacy' => 'Privacy Policy',
+    'footer_contact' => 'Contact Us',
+    'footer_address' => 'Amman, Jordan',
+    'footer_copyright' => 'Maintify. All rights reserved.',
+
+    ];

@@ -7,7 +7,7 @@
                     <span class="brand-maint">Maint</span><span class="brand-ify">ify</span>
                 </h3>
                 <p class="footer-desc pe-lg-4">
-                    نحن نربطك بأفضل الفنيين المعتمدين لتلبية جميع احتياجات صيانة منزلك. خدمة سريعة، شفافة، وبدون تعقيد.
+                    <?php echo $lang['footer_desc'] ?? ''; ?>
                 </p>
                 <div class="social-links-wrapper mt-4">
                     <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
@@ -18,30 +18,30 @@
             </div>
 
             <div class="col-lg-2 col-md-6">
-                <h4 class="footer-title">روابط سريعة</h4>
+                <h4 class="footer-title"><?php echo $lang['footer_quick_links'] ?? ''; ?></h4>
                 <ul class="footer-links">
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>index.php">الرئيسية</a></li>
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/about.php">عن المنصة</a></li>
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/services.php">الخدمات</a></li>
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/how_it_works.php">كيف نعمل؟</a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>index.php"><?php echo $lang['footer_home'] ?? ''; ?></a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/about.php"><?php echo $lang['footer_about'] ?? ''; ?></a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/services.php"><?php echo $lang['footer_services'] ?? ''; ?></a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/how_it_works.php"><?php echo $lang['footer_how_it_works'] ?? ''; ?></a></li>
                 </ul>
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <h4 class="footer-title">الدعم والمساعدة</h4>
+                <h4 class="footer-title"><?php echo $lang['footer_support'] ?? ''; ?></h4>
                 <ul class="footer-links">
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/faq.php">الأسئلة الشائعة (FAQ)</a></li>
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/help.php">مركز المساعدة</a></li>
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/terms.php">شروط الاستخدام</a></li>
-                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/privacy.php">سياسة الخصوصية</a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/faq.php"><?php echo $lang['footer_faq'] ?? ''; ?></a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/help.php"><?php echo $lang['footer_help_center'] ?? ''; ?></a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/terms.php"><?php echo $lang['footer_terms'] ?? ''; ?></a></li>
+                    <li><a href="<?php echo $base_url ?? '/Maintify/'; ?>pages/privacy.php"><?php echo $lang['footer_privacy'] ?? ''; ?></a></li>
                 </ul>
             </div>
 
             <div class="col-lg-3 col-md-6">
-                <h4 class="footer-title">تواصل معنا</h4>
+                <h4 class="footer-title"><?php echo $lang['footer_contact'] ?? ''; ?></h4>
                 <ul class="footer-links">
                     <li class="d-flex align-items-center mb-3" style="font-size: 14px; color: #9ca3af;">
-                        <i class="bi bi-geo-alt me-2 fs-5" style="color: #F36F21;"></i> عمّان، الأردن
+                        <i class="bi bi-geo-alt me-2 fs-5" style="color: #F36F21;"></i> <?php echo $lang['footer_address'] ?? ''; ?>
                     </li>
                     <li class="d-flex align-items-center mb-3" style="font-size: 14px; color: #9ca3af;">
                         <i class="bi bi-envelope me-2 fs-5" style="color: #F36F21;"></i> support@maintify.com
@@ -58,7 +58,7 @@
 
         <div class="footer-bottom">
             <p class="copyright-text">
-                &copy; <?php echo date('Y'); ?> Maintify. جميع الحقوق محفوظة.
+                &copy; <?php echo date('Y'); ?> <?php echo $lang['footer_copyright'] ?? ''; ?>
             </p>
             <span class="version-tag">v1.0.0 Beta</span>
         </div>
@@ -68,5 +68,4 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
-
 </html>
