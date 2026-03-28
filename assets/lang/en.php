@@ -297,4 +297,119 @@ $lang = [
     'payment_issue' => 'Payment / Financial Issue',
     'inaccurate_description' => 'Inaccurate Job Description',
     'select_customer' => 'Select Customer',
+
+    // --- Pages: FAQ ---
+    'faq_title' => 'Frequently Asked Questions (FAQ)',
+    'faq_subtitle' => 'Everything you need to know about Maintify in one place.',
+
+    'faq_q1' => 'How can I request a maintenance technician?',
+    'faq_a1' => 'You can easily log in as a "Homeowner", then go to your dashboard, click "New Request", select the service you need, and technicians will submit their proposals to you.',
+
+    'faq_q2' => 'Are Maintify technicians reliable?',
+    'faq_a2' => 'Absolutely. We verify the identities and experiences of all registered technicians. You can also read previous customer reviews before accepting any proposal.',
+
+    'faq_q3' => 'How is the payment processed?',
+    'faq_a3' => 'Currently, payment is agreed upon directly between you and the technician after the job is completed. We are working on providing secure online payment gateways soon.',
+
+    'faq_q4' => 'What if I face an issue with a technician?',
+    'faq_a4' => 'Your rights are protected. You can always use the "Complaints & Suggestions" system from your dashboard to raise a ticket, and our support team will intervene immediately.',
+    // --- Pages: Terms ---
+    'terms_title' => 'Terms of Service',
+    'terms_subtitle' => 'Please read these terms carefully before using Maintify.',
+    'terms_sec1_title' => '1. Introduction',
+    'terms_sec1_desc' => 'By accessing and using Maintify, you agree to comply with and be bound by the following terms and conditions of use.',
+    'terms_sec2_title' => '2. User Responsibilities',
+    'terms_sec2_desc' => 'Users must provide accurate information during registration. Technicians are responsible for delivering the services they bid on with the highest professional standards.',
+    'terms_sec3_title' => '3. Prohibited Activities',
+    'terms_sec3_desc' => 'Users may not use the platform for any illegal or unauthorized purpose, including spamming, harassment, or distributing malicious code.',
+
+    // --- Pages: Privacy ---
+    'privacy_title' => 'Privacy Policy',
+    'privacy_subtitle' => 'How we collect, use, and protect your data.',
+    'privacy_sec1_title' => '1. Data Collection',
+    'privacy_sec1_desc' => 'We collect information you provide directly to us, such as your name, email, phone number, and location to connect homeowners with technicians.',
+    'privacy_sec2_title' => '2. How We Use Your Data',
+    'privacy_sec2_desc' => 'Your data is used to provide, maintain, and improve our services, communicate with you, and ensure platform security.',
+    'privacy_sec3_title' => '3. Data Protection',
+    'privacy_sec3_desc' => 'We implement standard security measures to protect your personal information. We do not sell your personal data to third parties.',
+
+
+    // --- Pages: About ---
+    'about_title' => 'About Maintify',
+    'about_subtitle' => 'Connecting homeowners with trusted technicians.',
+    'about_sec1_title' => 'Our Vision',
+    'about_sec1_desc' => 'To be the leading platform for home maintenance services.',
+    'about_sec2_title' => 'Our Mission',
+    'about_sec2_desc' => 'Providing a seamless, secure, and efficient way to get home repairs done by certified professionals.',
+
+    // --- Pages: Services ---
+    'services_title' => 'Our Services',
+    'services_subtitle' => 'Comprehensive maintenance solutions.',
+    'services_sec1_title' => 'General Maintenance',
+    'services_sec1_desc' => 'From minor repairs to major renovations, our technicians cover all general home maintenance needs.',
+    'services_sec2_title' => 'Specialized Services',
+    'services_sec2_desc' => 'We offer specialized services including plumbing, electrical work, HVAC, and carpentry.',
+
+    // --- Pages: How It Works ---
+    'how_title' => 'How It Works',
+    'how_subtitle' => 'Three simple steps to get your job done.',
+    'how_sec1_title' => '1. Post a Request',
+    'how_sec1_desc' => 'Describe your problem and submit a request through your dashboard.',
+    'how_sec2_title' => '2. Receive Offers',
+    'how_sec2_desc' => 'Certified technicians will review your request and submit their bids.',
+    'how_sec3_title' => '3. Hire & Review',
+    'how_sec3_desc' => 'Choose the best offer, get the job done, and leave a review.',
+
+    // --- Pages: Help ---
+    'help_title' => 'Help Center',
+    'help_subtitle' => 'We are here to support you 24/7.',
+    'help_sec1_title' => 'Contact Support',
+    'help_sec1_desc' => 'You can reach our support team via email at support@maintify.com.',
+    'help_sec2_title' => 'Report an Issue',
+    'help_sec2_desc' => 'If you encounter any technical issues, please open a ticket from your dashboard.',
+
+
+     // --- Pages: How It Works ---
+    'hiw_title'        => 'How It Works',
+    'hiw_subtitle'     => 'Simple steps to get professional home maintenance service',
+    'hiw_intro_title'  => 'Overview',
+    'hiw_intro_desc'   => 'Our platform connects homeowners with verified maintenance providers in a simple and transparent way. Everything you need — repairs and routine maintenance — all in one place.',
+    'hiw_steps_title'  => 'Steps to Get Service',
+    'hiw_step1_title'  => 'Create Your Account',
+    'hiw_step1_desc'   => 'Sign up for free as a homeowner or service provider in less than a minute.',
+    'hiw_step2_title'  => 'Submit a Maintenance Request',
+    'hiw_step2_desc'   => 'Choose the service type, describe the issue, and set a convenient date.',
+    'hiw_step3_title'  => 'Receive Offers',
+    'hiw_step3_desc'   => 'Verified providers receive your request and send offers with pricing.',
+    'hiw_step4_title'  => 'Choose & Confirm',
+    'hiw_step4_desc'   => 'Compare offers, choose the best fit, and confirm your booking.',
+    'hiw_step5_title'  => 'Track & Rate',
+    'hiw_step5_desc'   => 'Follow your request in real time and rate the provider after completion.',
+    'hiw_note_title'   => 'Quality Guarantee',
+    'hiw_note_desc'    => 'All providers on our platform are verified and rated. We ensure a safe and reliable experience every time.',
+ 
+    // --- Pages: Services ---
+    'services_title'        => 'Our Services',
+    'services_subtitle'     => 'A wide range of home maintenance services at your fingertips',
+    'services_intro_title'  => 'What We Offer',
+    'services_intro_desc'   => 'We connect you with certified specialists across all home maintenance fields. From fixing water leaks to full home renovation — all through one trusted platform.',
+    'services_list_title'   => 'Available Services',
+    'srv_plumbing'          => 'Plumbing',
+    'srv_plumbing_desc'     => 'Fix leaks, install fixtures, and clean drainage systems.',
+    'srv_electrical'        => 'Electrical',
+    'srv_electrical_desc'   => 'Fix electrical faults, install lighting, and home wiring.',
+    'srv_ac'                => 'AC & Cooling',
+    'srv_ac_desc'           => 'Install, maintain, and repair air conditioners and refrigerators.',
+    'srv_painting'          => 'Painting',
+    'srv_painting_desc'     => 'Interior and exterior painting to the highest quality standards.',
+    'srv_carpentry'         => 'Carpentry & Doors',
+    'srv_carpentry_desc'    => 'Install and repair doors, windows, and home furniture.',
+    'srv_cleaning'          => 'Cleaning',
+    'srv_cleaning_desc'     => 'Full cleaning for homes, apartments, and offices using safe materials.',
+    'srv_renovation'        => 'Renovation & Construction',
+    'srv_renovation_desc'   => 'Renovation, finishing, and redesigning of spaces.',
+    'srv_security'          => 'Security & Safety',
+    'srv_security_desc'     => 'Install cameras, smart locks, and alarm systems.',
+    'services_note_title'   => 'More Services',
+    'services_note_desc'    => "Can't find the service you're looking for? Contact us and we'll add it soon. Our platform is constantly growing to meet your needs.",
 ];

@@ -18,11 +18,11 @@ include_once 'includes/navbar.php';
 
     <h1 class="hero-title">
       منزلك يستحق
-      <span class="hero-title-accent">أفضل رعاية.</span>
+      <span class="hero-title-accent">أفضل رعاية</span>
     </h1>
 
     <p class="hero-subtitle">
-      تواصل مع فنيين معتمدين لجميع احتياجات صيانة منزلك — سريع، شفاف، وبدون تعقيد.
+      تواصل مع فنيين معتمدين لجميع احتياجات صيانة منزلك — سريع، شفاف، وبدون تعقيد
     </p>
 
     <div class="hero-cta">
@@ -161,10 +161,10 @@ include_once 'includes/navbar.php';
       <div class="about-text-content">
         <div>
           <p class="section-eyebrow">من نحن</p>
-          <h2 class="section-title">منصة صُممت لراحة منزلك.</h2>
+          <h2 class="section-title">منصة صُممت لراحة منزلك</h2>
         </div>
         <p class="about-desc">
-          Maintify تجسّر الفجوة بين أصحاب المنازل والفنيين المحترفين. سواء كنت تحتاج إصلاحاً عاجلاً أو تريد نشر طلب للمزايدة — نجعل صيانة المنزل بسيطة، شفافة، وفعّالة.
+          Maintify تجسّر الفجوة بين أصحاب المنازل والفنيين المحترفين سواء كنت تحتاج إصلاحاً عاجلاً أو تريد نشر طلب للمزايدة — نجعل صيانة المنزل بسيطة، شفافة، وفعّالة
         </p>
         <div class="about-feature-list">
           <div class="about-feature"><span class="about-feature-dot"></span> فنيون معتمدون ومدرّبون بشكل مستقل</div>
@@ -193,32 +193,32 @@ include_once 'includes/navbar.php';
       <div class="service-card">
         <span class="service-icon">🚿</span>
         <div class="service-name">السباكة</div>
-        <p class="service-desc">تسريبات، تمديدات، وتصريف — بأيدي سباكين معتمدين.</p>
+        <p class="service-desc">تسريبات، تمديدات، وتصريف — بأيدي سباكين معتمدين</p>
       </div>
       <div class="service-card">
         <span class="service-icon">⚡</span>
         <div class="service-name">الكهرباء</div>
-        <p class="service-desc">إصلاح وتمديد كهربائي آمن ومطابق للمعايير.</p>
+        <p class="service-desc">إصلاح وتمديد كهربائي آمن ومطابق للمعايير</p>
       </div>
       <div class="service-card">
         <span class="service-icon">❄️</span>
         <div class="service-name">التكييف والتدفئة</div>
-        <p class="service-desc">صيانة وتركيب أنظمة HVAC لراحة دائمة.</p>
+        <p class="service-desc">صيانة وتركيب أنظمة HVAC لراحة دائمة</p>
       </div>
       <div class="service-card">
         <span class="service-icon">🪟</span>
         <div class="service-name">النجارة</div>
-        <p class="service-desc">أبواب، خزائن، وأعمال خشبية بدقة وإتقان.</p>
+        <p class="service-desc">أبواب، خزائن، وأعمال خشبية بدقة وإتقان</p>
       </div>
       <div class="service-card">
         <span class="service-icon">🎨</span>
         <div class="service-name">الدهانات</div>
-        <p class="service-desc">طلاء داخلي وخارجي بتشطيبات احترافية.</p>
+        <p class="service-desc">طلاء داخلي وخارجي بتشطيبات احترافية</p>
       </div>
       <div class="service-card">
         <span class="service-icon">🧹</span>
         <div class="service-name">التنظيف العميق</div>
-        <p class="service-desc">تنظيف شامل للمطابخ والحمامات وكامل المنزل.</p>
+        <p class="service-desc">تنظيف شامل للمطابخ والحمامات وكامل المنزل</p>
       </div>
     </div>
   </div>
@@ -228,7 +228,7 @@ include_once 'includes/navbar.php';
 <section class="why-section">
   <div class="container-main">
     <p class="section-eyebrow">لماذا Maintify</p>
-    <h2 class="section-title">الطريقة الأذكى<br>لإدارة منزلك.</h2>
+    <h2 class="section-title">الطريقة الأذكى<br>لإدارة منزلك</h2>
 
     <div class="why-grid">
       <div class="why-card">
@@ -236,21 +236,21 @@ include_once 'includes/navbar.php';
         <div class="why-card-num">01</div>
         <span class="why-card-icon">💰</span>
         <div class="why-card-title">مزايدة ذكية</div>
-        <p class="why-card-desc">انشر طلبك واستقبل عروضاً من فنيين متعددين للحصول على أفضل سعر.</p>
+        <p class="why-card-desc">انشر طلبك واستقبل عروضاً من فنيين متعددين للحصول على أفضل سعر</p>
       </div>
       <div class="why-card">
         <div class="why-card-bar"></div>
         <div class="why-card-num">02</div>
         <span class="why-card-icon">🛡️</span>
         <div class="why-card-title">فنيون موثقون</div>
-        <p class="why-card-desc">تصفّح الملفات الشخصية والتقييمات قبل اتخاذ أي قرار — شفافية تامة.</p>
+        <p class="why-card-desc">تصفّح الملفات الشخصية والتقييمات قبل اتخاذ أي قرار — شفافية تامة</p>
       </div>
       <div class="why-card">
         <div class="why-card-bar"></div>
         <div class="why-card-num">03</div>
         <span class="why-card-icon">💬</span>
         <div class="why-card-title">تواصل مباشر</div>
-        <p class="why-card-desc">تحدث مع مزود الخدمة مباشرة لتوضيح التفاصيل قبل التأكيد.</p>
+        <p class="why-card-desc">تحدث مع مزود الخدمة مباشرة لتوضيح التفاصيل قبل التأكيد</p>
       </div>
     </div>
   </div>
