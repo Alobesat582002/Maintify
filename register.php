@@ -2,337 +2,325 @@
 require_once 'config/db.php';
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: index.php");
-    exit();
+  header("Location: index.php");
+  exit();
 }
 
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['final_submit'])) {
-    $first_name   = trim($_POST['first_name']);
-    $last_name    = trim($_POST['last_name']);
-    $email        = trim($_POST['email']);
-    $password     = $_POST['password'];
-    $phone        = trim($_POST['phone']);
-    $role         = $_POST['role'];
-    $country      = trim($_POST['country']);
-    $city         = trim($_POST['city']);
-    
-    $interests_str = trim($_POST['interests'] ?? '');
-    $interests     = !empty($interests_str) ? explode(',', $interests_str) : [];
-    
-    $specialty    = trim($_POST['specialty'] ?? '');
-    $experience   = trim($_POST['experience'] ?? 0);
+  $first_name   = trim($_POST['first_name']);
+  $last_name    = trim($_POST['last_name']);
+  $email        = trim($_POST['email']);
+  $password     = $_POST['password'];
+  $phone        = trim($_POST['phone']);
+  $role         = $_POST['role'];
+  $country      = trim($_POST['country']);
+  $city         = trim($_POST['city']);
 
-    if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($role)) {
-        $error = "Please fill all required fields.";
+  $interests_str = trim($_POST['interests'] ?? '');
+  $interests     = !empty($interests_str) ? explode(',', $interests_str) : [];
+
+  $specialty    = trim($_POST['specialty'] ?? '');
+  $experience   = trim($_POST['experience'] ?? 0);
+
+  if (empty($first_name) || empty($last_name) || empty($email) || empty($password) || empty($role)) {
+    $error = "Please fill all required fields.";
+  } else {
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+
+    if ($stmt->rowCount() > 0) {
+      $error = "This email is already registered!";
     } else {
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        
-        if ($stmt->rowCount() > 0) {
-            $error = "This email is already registered!";
-        } else {
-            try {
-                $pdo->beginTransaction();
-                
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                
-                $sql = "INSERT INTO users (first_name, last_name, email, phone, password, role, country, city) 
+      try {
+        $pdo->beginTransaction();
+
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $sql = "INSERT INTO users (first_name, last_name, email, phone, password, role, country, city) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$first_name, $last_name, $email, $phone, $hashed_password, $role, $country, $city]);
-                
-                $user_id = $pdo->lastInsertId();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$first_name, $last_name, $email, $phone, $hashed_password, $role, $country, $city]);
 
-                if ($role === 'technician') {
-                    $stmt_tech = $pdo->prepare("INSERT INTO technician_profiles (user_id, bio, experience_years) VALUES (?, ?, ?)");
-                    $stmt_tech->execute([$user_id, $specialty, $experience]);
-                }
+        $user_id = $pdo->lastInsertId();
 
-                if ($role === 'homeowner' && !empty($interests)) {
-                    $stmt_int = $pdo->prepare("INSERT INTO user_interests (user_id, category_id) VALUES (?, ?)");
-                    foreach ($interests as $cat_id) {
-                        $stmt_int->execute([$user_id, $cat_id]);
-                    }
-                }
-
-                $pdo->commit();
-                $success = "true";
-                
-            } catch (Exception $e) {
-                $pdo->rollBack();
-                $error = "Database Error: " . $e->getMessage();
-            }
+        if ($role === 'technician') {
+          $stmt_tech = $pdo->prepare("INSERT INTO technician_profiles (user_id, bio, experience_years) VALUES (?, ?, ?)");
+          $stmt_tech->execute([$user_id, $specialty, $experience]);
         }
+
+        if ($role === 'homeowner' && !empty($interests)) {
+          $stmt_int = $pdo->prepare("INSERT INTO user_interests (user_id, category_id) VALUES (?, ?)");
+          foreach ($interests as $cat_id) {
+            $stmt_int->execute([$user_id, $cat_id]);
+          }
+        }
+
+        $pdo->commit();
+        $success = "true";
+      } catch (Exception $e) {
+        $pdo->rollBack();
+        $error = "Database Error: " . $e->getMessage();
+      }
     }
+  }
 }
 
 $categories = [];
 try {
-    $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
-    $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $stmt = $pdo->query("SELECT id, name FROM categories ORDER BY name");
+  $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    $categories = [];
 }
 
 include_once 'includes/header.php';
-include_once 'includes/navbar.php';
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/auth.css">
 
 <style>
-  :root {
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --primary-light: #eef2ff;
-    --success: #10b981;
-    --error: #ef4444;
-    --border: #e5e7eb;
-    --border-error: #fca5a5;
-    --text: #111827;
-    --muted: #6b7280;
-    --bg: #f8fafc;
-  }
-
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); }
-
-  .reg-wrap {
-    min-height: calc(100vh - 70px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
-  }
-
+  /* تعديلات بسيطة خاصة بصفحة التسجيل لتتوافق مع auth.css */
   .reg-card {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.08);
-    width: 100%;
-    max-width: 540px;
-    overflow: hidden;
+    max-width: 650px !important;
   }
 
-  /* Progress bar */
-  .reg-progress { padding: 1.5rem 2rem 0; }
-  .progress-steps {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    margin-bottom: 1.5rem;
-  }
-  .step-dot {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 600; color: var(--muted);
-    flex-shrink: 0;
-    transition: all 0.3s ease;
-    position: relative; z-index: 1;
-  }
-  .step-dot.active { border-color: var(--primary); background: var(--primary); color: #fff; }
-  .step-dot.done { border-color: var(--success); background: var(--success); color: #fff; }
-  .step-dot.done::after { content: '✓'; font-size: 14px; }
-  .step-dot.done span { display: none; }
-  .step-line {
-    flex: 1; height: 2px;
-    background: var(--border);
-    transition: background 0.3s ease;
-  }
-  .step-line.done { background: var(--success); }
-
-  /* Step panels */
-  .reg-body { padding: 0 2rem 2rem; }
-  .step-panel { display: none; }
-  .step-panel.active { display: block; }
-
-  .step-title { font-size: 20px; font-weight: 600; color: var(--text); margin: 1.5rem 0 0.25rem; }
-  .step-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 1.5rem; }
-
-  /* Form fields */
-  .form-label { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 5px; display: block; }
-  .form-control, .form-select {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-  .form-control:focus, .form-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    outline: none;
-  }
-  .form-control.is-invalid,
-  .form-select.is-invalid {
-    border-color: var(--border-error) !important;
-    background: #fff5f5;
-  }
-  .form-control.is-invalid:focus,
-  .form-select.is-invalid:focus {
-    border-color: var(--error) !important;
-    box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+  .step-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
   }
 
-  /* Inline field error */
+  .step-panel.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Error Highlights */
+  .form-input.is-invalid {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05);
+  }
+
   .field-error {
     display: none;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    color: var(--error);
-    margin-top: 5px;
-    font-weight: 500;
-    animation: fadeInDown 0.2s ease;
-  }
-  .field-error.show { display: flex; }
-  .field-error::before { content: '⚠'; font-size: 11px; }
-
-  @keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
+    color: #fca5a5;
+    font-size: 0.8rem;
+    margin-top: 6px;
   }
 
-  /* Role cards */
-  .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 0.5rem; }
-  .role-card {
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 1.25rem 1rem;
+  .field-error.show {
+    display: block;
+  }
+
+  .field-error::before {
+    content: '⚠ ';
+  }
+
+  /* Role & Category Cards */
+  .selection-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .select-card {
+    background: var(--input-bg);
+    border: 1px solid var(--navy-border);
+    border-radius: var(--radius);
+    padding: 1.5rem 1rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative;
+    color: var(--text-muted);
   }
-  .role-card:hover { border-color: #a5b4fc; background: var(--primary-light); }
-  .role-card.selected { border-color: var(--primary); background: var(--primary-light); }
-  .role-card.is-invalid { border-color: var(--border-error) !important; background: #fff5f5; }
-  .role-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
-  .role-icon { font-size: 32px; margin-bottom: 8px; }
-  .role-label { font-size: 14px; font-weight: 600; color: var(--text); }
-  .role-desc { font-size: 12px; color: var(--muted); margin-top: 3px; }
 
-  /* Category checkboxes */
-  .cat-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
+  .select-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text);
+  }
+
+  .select-card.selected {
+    border-color: var(--orange);
+    background: rgba(249, 115, 22, 0.08);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+  }
+
+  .select-card.is-invalid {
+    border-color: #ef4444;
+  }
+
+  .select-card input {
+    display: none;
+  }
+
+  .select-card .icon {
+    font-size: 2rem;
     margin-bottom: 0.5rem;
+    display: block;
   }
+
+  .select-card .title {
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-head);
+  }
+
+  .select-card .desc {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    opacity: 0.7;
+  }
+
   .cat-item {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: all 0.18s;
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13px; font-weight: 500; color: var(--text);
+    padding: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .cat-item:hover { border-color: #a5b4fc; background: var(--primary-light); }
-  .cat-item.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-  .cat-item input { display: none; }
 
-  /* Experience slider */
-  .exp-display { font-size: 28px; font-weight: 600; color: var(--primary); text-align: center; margin: 0.5rem 0; }
-  .exp-display span { font-size: 14px; color: var(--muted); font-weight: 400; }
-  input[type="range"] { width: 100%; accent-color: var(--primary); height: 6px; cursor: pointer; }
+  .cat-item .icon {
+    font-size: 1.2rem;
+    margin: 0;
+  }
 
-  /* Terms */
+  /* Buttons Row */
+  .btn-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn-row .btn-primary {
+    margin-top: 0;
+    flex: 2;
+  }
+
+  .btn-back {
+    flex: 1;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--navy-border);
+    border-radius: var(--radius);
+    font-weight: 600;
+    transition: 0.2s;
+  }
+
+  .btn-back:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+  }
+
+  /* Terms Box */
   .terms-box {
-    background: var(--primary-light);
-    border: 1.5px solid #c7d2fe;
-    border-radius: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--navy-border);
+    border-radius: var(--radius);
     padding: 1rem;
-    font-size: 13px; color: var(--muted);
+    font-size: 0.8rem;
+    color: var(--text-muted);
     max-height: 100px;
     overflow-y: auto;
-    margin-bottom: 12px;
+    margin-bottom: 1rem;
     line-height: 1.6;
   }
+
   .terms-check {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px; font-weight: 500; color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
   }
-  .terms-check.is-invalid { color: var(--error); }
-  .terms-check input { width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 
-  /* Buttons */
-  .btn-next {
-    background: var(--primary); color: #fff;
-    border: none; border-radius: 10px;
-    padding: 12px 28px; font-size: 15px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer; transition: all 0.2s;
-    width: 100%; margin-top: 1rem;
+  .terms-check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--orange);
   }
-  .btn-next:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,70,229,0.3); }
-  .btn-back {
-    background: none; border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 11px 20px;
-    font-size: 14px; font-weight: 500; color: var(--muted);
-    cursor: pointer; font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s; margin-top: 1rem;
-  }
-  .btn-back:hover { border-color: #9ca3af; color: var(--text); }
-  .btn-row { display: flex; gap: 10px; }
-  .btn-row .btn-next { flex: 1; margin-top: 1rem; }
 
-  /* Success screen */
-  .success-screen { text-align: center; padding: 2rem 2rem 2.5rem; display: none; }
-  .success-screen.show { display: block; }
+  /* Progress Indicators */
+  .step-indicator {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 2rem;
+    justify-content: center;
+  }
+
+  .step-dot {
+    height: 4px;
+    width: 30px;
+    background: var(--navy-border);
+    border-radius: 2px;
+    transition: 0.3s;
+  }
+
+  .step-dot.active {
+    background: var(--orange);
+    width: 40px;
+    box-shadow: 0 0 8px var(--orange-glow);
+  }
+
+  /* Success Screen */
+  .success-screen {
+    text-align: center;
+    display: none;
+  }
+
+  .success-screen.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
   .success-icon {
-    width: 72px; height: 72px; background: #d1fae5; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 1.25rem; font-size: 32px;
+    font-size: 4rem;
+    color: var(--orange);
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px var(--orange-glow);
   }
-  .success-screen h3 { font-size: 22px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-  .success-screen p { font-size: 14px; color: var(--muted); margin-bottom: 1.5rem; }
-  .btn-login-link {
-    display: inline-block; background: var(--primary); color: #fff;
-    text-decoration: none; padding: 12px 32px; border-radius: 10px;
-    font-weight: 600; font-size: 15px; transition: background 0.2s;
-  }
-  .btn-login-link:hover { background: var(--primary-hover); color: #fff; }
-
-  .alert-danger {
-    background: #fef2f2; border: 1px solid #fecaca;
-    color: #dc2626; border-radius: 10px;
-    padding: 10px 14px; font-size: 14px; margin-bottom: 1rem;
-  }
-
-  /* Password strength */
-  .pw-strength { height: 4px; border-radius: 2px; margin-top: 6px; transition: all 0.3s; background: var(--border); }
-  .pw-strength.weak { background: #ef4444; width: 33%; }
-  .pw-strength.medium { background: #f59e0b; width: 66%; }
-  .pw-strength.strong { background: var(--success); width: 100%; }
 </style>
 
-<div class="reg-wrap">
-  <div class="reg-card" id="regCard">
+<div class="auth-wrap">
+  <div class="glass-card reg-card">
 
-    <!-- <div class="reg-progress" id="progressBar">
-      <div class="progress-steps" id="progressSteps"></div>
-    </div> -->
+    <a href="index.php" class="logo-wrap" style="text-decoration: none;">
+      <img src="assets/images/logo.png" alt="Maintify" class="logo-img-auth">
+      <h1 class="logo-name"><span class="maint-text">Maint</span><span class="ify-text">ify</span></h1>
+    </a>
 
     <?php if (!empty($error)): ?>
-    <div class="reg-body">
-      <div class="alert-danger"><?php echo $error; ?></div>
-    </div>
+      <div class="alert-err"><?php echo $error; ?></div>
     <?php endif; ?>
 
-    <div class="success-screen <?php echo $success === 'true' ? 'show' : ''; ?>" id="successScreen">
-      <div class="success-icon">🎉</div>
-      <h3>Account Created!</h3>
-      <p>Your account has been successfully created.<br>You can now log in and get started.</p>
-      <a href="login.php" class="btn-login-link">Go to Login</a>
+    <div class="success-screen <?php echo $success === 'true' ? 'show' : ''; ?>">
+      <div class="success-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <h2 class="card-title mb-2">Account Created!</h2>
+      <p class="card-sub mb-4">Welcome to Maintify. You can now log in and start your journey.</p>
+      <a href="login.php" class="btn-primary">Go to Login <i class="bi bi-arrow-right ms-2"></i></a>
     </div>
 
     <form action="register.php" method="POST" id="regForm" <?php echo $success === 'true' ? 'style="display:none"' : ''; ?>>
@@ -341,503 +329,341 @@ include_once 'includes/navbar.php';
       <input type="hidden" name="interests" id="interestsInput" value="">
       <input type="hidden" name="specialty" id="specialtyInput" value="">
 
-      <div class="reg-body">
-
-        <!-- STEP 1 -->
-        <div class="step-panel" id="step1">
-          <h2 class="step-title">Create your account</h2>
-          <p class="step-subtitle">Let's start with your basic information</p>
-
-          <div class="row g-3">
-            <div class="col-6">
-              <label class="form-label">First Name</label>
-              <input type="text" name="first_name" id="firstNameInput" class="form-control">
-              <div class="field-error" id="err-first_name">First name is required</div>
-            </div>
-            <div class="col-6">
-              <label class="form-label">Last Name </label>
-              <input type="text" name="last_name" id="lastNameInput" class="form-control" >
-              <div class="field-error" id="err-last_name">Last name is required</div>
-            </div>
-          </div>
-
-          <div class="mb-3 mt-3">
-            <label class="form-label">Email Address</label>
-            <input type="email" name="email" id="emailInput" class="form-control" placeholder="you@example.com">
-            <div class="field-error" id="err-email">Please enter a valid email address</div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Password </label>
-            <input type="password" name="password" id="pwInput" class="form-control" placeholder="Min. 6 characters">
-            <div class="pw-strength" id="pwStrength"></div>
-            <div class="field-error" id="err-password">Password must be at least 6 characters</div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Confirm Password </label>
-            <input type="password" id="confirmPw" class="form-control" placeholder="Repeat password">
-            <div class="field-error" id="err-confirmPw">Passwords do not match</div>
-          </div>
-
-          <div class="row g-3 mt-0">
-            <div class="col-6">
-              <label class="form-label">Gender </label>
-              <select name="gender" id="genderInput" class="form-select">
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                
-              </select>
-              <div class="field-error" id="err-gender">Please select your gender</div>
-            </div>
-            <div class="col-6">
-              <label class="form-label">Age </label>
-              <input type="number" name="age" id="ageInput" class="form-control" placeholder="e.g. 25" min="16" max="100">
-              <div class="field-error" id="err-age">Please enter a valid age (18–60)</div>
-            </div>
-          </div>
-
-          <div class="mb-3 mt-3">
-            <label class="form-label">Phone Number</label>
-            <input type="tel" id="phone-number" name="phone" class="form-control" placeholder="+962 7xx xxx xxxx">
-           <div class="field-error" id="err-phone">Please enter correct phone number </div>
-          </div>
-
-          <button type="button" class="btn-next" onclick="goNext(1)">Continue →</button>
-        </div>
-
-        <!-- STEP 2 -->
-        <div class="step-panel" id="step2">
-          <h2 class="step-title">What brings you here?</h2>
-          <p class="step-subtitle">Choose your role to personalize your experience</p>
-
-          <div class="role-grid">
-            <label class="role-card" id="roleHomeowner" onclick="selectRole('homeowner')">
-              <input type="radio" name="role_pick" value="homeowner">
-              <div class="role-icon">🏠</div>
-              <div class="role-label">Homeowner</div>
-              <div class="role-desc">Looking for maintenance services</div>
-            </label>
-            <label class="role-card" id="roleTechnician" onclick="selectRole('technician')">
-              <input type="radio" name="role_pick" value="technician">
-              <div class="role-icon">🔧</div>
-              <div class="role-label">Technician</div>
-              <div class="role-desc">Offering professional services</div>
-            </label>
-          </div>
-          <div class="field-error" id="err-role">Please select a role to continue</div>
-
-          <div class="btn-row">
-            <button type="button" class="btn-back" onclick="goBack(2)">← Back</button>
-            <button type="button" class="btn-next" onclick="goNext(2)">Continue →</button>
-          </div>
-        </div>
-
-        <!-- STEP 3 - Homeowner interests -->
-        <div class="step-panel" id="step3home">
-          <h2 class="step-title">What are you interested in?</h2>
-          <p class="step-subtitle">Select all service categories that apply</p>
-
-          <div class="cat-grid" id="catGridHome">
-            <?php foreach ($categories as $cat): ?>
-            <label class="cat-item" onclick="toggleCat(this, 'home')">
-              <input type="checkbox" value="<?php echo htmlspecialchars($cat['id']); ?>">
-              <?php echo htmlspecialchars($cat['name']); ?>
-            </label>
-            <?php endforeach; ?>
-            <?php if (empty($categories)): ?>
-            <label class="cat-item" onclick="toggleCat(this,'home')"><input type="checkbox" value="plumbing"> 🔧 Plumbing</label>
-            <label class="cat-item" onclick="toggleCat(this,'home')"><input type="checkbox" value="electrical"> ⚡ Electrical</label>
-            <label class="cat-item" onclick="toggleCat(this,'home')"><input type="checkbox" value="cleaning"> 🧹 Cleaning</label>
-            <label class="cat-item" onclick="toggleCat(this,'home')"><input type="checkbox" value="ac"> ❄️ AC Repair</label>
-            <label class="cat-item" onclick="toggleCat(this,'home')"><input type="checkbox" value="painting"> 🎨 Painting</label>
-            <label class="cat-item" onclick="toggleCat(this,'home')"><input type="checkbox" value="carpentry"> 🪵 Carpentry</label>
-            <?php endif; ?>
-          </div>
-
-          <div class="btn-row">
-            <button type="button" class="btn-back" onclick="goBack(3)">← Back</button>
-            <button type="button" class="btn-next" onclick="goNext(3, 'home')">Continue →</button>
-          </div>
-        </div>
-
-        <!-- STEP 3 - Technician specialty -->
-        <div class="step-panel" id="step3tech">
-          <h2 class="step-title">What's your specialty?</h2>
-          <p class="step-subtitle">Choose your main field of expertise</p>
-
-          <div class="cat-grid" id="catGridTech">
-            <?php foreach ($categories as $cat): ?>
-            <label class="cat-item" onclick="selectSpecialty(this, '<?php echo htmlspecialchars($cat['id']); ?>')">
-              <input type="radio" name="specialty_pick" value="<?php echo htmlspecialchars($cat['id']); ?>">
-              <?php echo htmlspecialchars($cat['name']); ?>
-            </label>
-            <?php endforeach; ?>
-            <?php if (empty($categories)): ?>
-            <label class="cat-item" onclick="selectSpecialty(this,'plumbing')"><input type="radio"> 🔧 Plumbing</label>
-            <label class="cat-item" onclick="selectSpecialty(this,'electrical')"><input type="radio"> ⚡ Electrical</label>
-            <label class="cat-item" onclick="selectSpecialty(this,'cleaning')"><input type="radio"> 🧹 Cleaning</label>
-            <label class="cat-item" onclick="selectSpecialty(this,'ac')"><input type="radio"> ❄️ AC Repair</label>
-            <label class="cat-item" onclick="selectSpecialty(this,'painting')"><input type="radio"> 🎨 Painting</label>
-            <label class="cat-item" onclick="selectSpecialty(this,'carpentry')"><input type="radio"> 🪵 Carpentry</label>
-            <?php endif; ?>
-          </div>
-          <div class="field-error" id="err-specialty">Please select your specialty</div>
-
-          <div class="btn-row">
-            <button type="button" class="btn-back" onclick="goBack(3)">← Back</button>
-            <button type="button" class="btn-next" onclick="goNext(3, 'tech')">Continue →</button>
-          </div>
-        </div>
-
-        <!-- STEP 4 - Homeowner location -->
-        <div class="step-panel" id="step4home">
-          <h2 class="step-title">Your location</h2>
-          <p class="step-subtitle">Help technicians find you</p>
-
-          <div class="mb-3">
-            <label class="form-label">Country</label>
-            <input type="text" name="country" class="form-control" placeholder="Jordan">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">City</label>
-            <input type="text" name="city" class="form-control" placeholder="Amman">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Address</label>
-            <input type="text" name="address" class="form-control" placeholder="Street, building...">
-          </div>
-
-          <div class="terms-box">
-            By creating an account on Maintify, you agree to our Terms of Service and Privacy Policy. We collect your personal data to connect you with qualified technicians in your area. Your information will never be shared with third parties without consent. You can delete your account at any time.
-          </div>
-          <label class="terms-check mb-2" id="termsHomeLabel">
-            <input type="checkbox" id="termsHome">
-            I agree to the Terms & Conditions
-          </label>
-          <div class="field-error" id="err-termsHome">You must accept the Terms & Conditions</div>
-
-          <div class="btn-row">
-            <button type="button" class="btn-back" onclick="goBack(4, 'home')">← Back</button>
-            <button type="button" class="btn-next" onclick="submitForm('home')">Create Account 🎉</button>
-          </div>
-        </div>
-
-        <!-- STEP 4 - Technician experience -->
-        <div class="step-panel" id="step4tech">
-          <h2 class="step-title">Your experience</h2>
-          <p class="step-subtitle">Tell clients about your background</p>
-
-          <div class="mb-3">
-            <label class="form-label">Country</label>
-            <input type="text" name="country_tech" class="form-control" placeholder="Jordan">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">City</label>
-            <input type="text" name="city_tech" class="form-control" placeholder="Amman">
-          </div>
-
-          <div class="mb-4">
-            <label class="form-label">Years of Experience</label>
-            <div class="exp-display"><span id="expVal">5</span> <span>years</span></div>
-            <input type="range" name="experience" min="1" max="30" value="5" id="expSlider"
-              oninput="document.getElementById('expVal').textContent = this.value">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px">
-              <span>1 yr</span><span>30 yrs</span>
-            </div>
-          </div>
-
-          <div class="terms-box">
-            By joining Maintify as a technician, you agree to provide accurate information about your skills and experience. You commit to professional conduct and quality service. Maintify reserves the right to suspend accounts that violate our community standards.
-          </div>
-          <label class="terms-check mb-2" id="termsTechLabel">
-            <input type="checkbox" id="termsTech">
-            I agree to the Terms & Conditions
-          </label>
-          <div class="field-error" id="err-termsTech">You must accept the Terms & Conditions</div>
-
-          <div class="btn-row">
-            <button type="button" class="btn-back" onclick="goBack(4, 'tech')">← Back</button>
-            <button type="button" class="btn-next" onclick="submitForm('tech')">Create Account 🎉</button>
-          </div>
-        </div>
-
+      <div class="step-indicator" id="stepIndicators">
+        <div class="step-dot active" id="ind1"></div>
+        <div class="step-dot" id="ind2"></div>
+        <div class="step-dot" id="ind3"></div>
+        <div class="step-dot" id="ind4"></div>
       </div>
-    </form>
 
+      <div class="step-panel active" id="step1">
+        <h2 class="card-title">Create Account</h2>
+        <p class="card-sub">Let's start with your basic information.</p>
+
+        <div class="row g-3">
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">First Name</label>
+            <input type="text" name="first_name" class="form-input" placeholder="John">
+            <div class="field-error" id="err-first_name">First name required</div>
+          </div>
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="last_name" class="form-input" placeholder="Doe">
+            <div class="field-error" id="err-last_name">Last name required</div>
+          </div>
+        </div>
+
+        <div class="form-group mt-3">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-input" placeholder="you@example.com">
+          <div class="field-error" id="err-email">Valid email required</div>
+        </div>
+
+        <div class="row g-3 mt-0">
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" id="pwInput" class="form-input" placeholder="Min 6 chars">
+            <div class="field-error" id="err-password">Min 6 characters</div>
+          </div>
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" id="confirmPw" class="form-input" placeholder="Repeat password">
+            <div class="field-error" id="err-confirmPw">Passwords don't match</div>
+          </div>
+        </div>
+
+        <div class="row g-3 mt-0">
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">Age</label>
+            <input type="number" name="age" class="form-input" placeholder="e.g. 25" min="16" max="100">
+            <div class="field-error" id="err-age">Valid age (16-100)</div>
+          </div>
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" name="phone" class="form-input" placeholder="07XXXXXXXX" dir="ltr">
+            <div class="field-error" id="err-phone">Valid JD number</div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary w-100 mt-4" onclick="goNext(1)">Continue <i class="bi bi-arrow-right"></i></button>
+
+        <div class="bottom-row">
+          Already have an account? <a href="login.php">Sign In</a>
+        </div>
+      </div>
+
+      <div class="step-panel" id="step2">
+        <h2 class="card-title">Choose Your Role</h2>
+        <p class="card-sub">How do you want to use Maintify?</p>
+
+        <div class="selection-grid">
+          <label class="select-card" id="roleHomeowner" onclick="selectRole('homeowner')">
+            <i class="bi bi-house-door icon"></i>
+            <div class="title">Homeowner</div>
+            <div class="desc">I need maintenance services</div>
+          </label>
+          <label class="select-card" id="roleTechnician" onclick="selectRole('technician')">
+            <i class="bi bi-tools icon"></i>
+            <div class="title">Technician</div>
+            <div class="desc">I offer professional services</div>
+          </label>
+        </div>
+        <div class="field-error text-center mb-3" id="err-role">Please select a role</div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="goBack(2)">Back</button>
+          <button type="button" class="btn-primary" onclick="goNext(2)">Continue <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div class="step-panel" id="step3">
+        <h2 class="card-title" id="step3Title">Interests</h2>
+        <p class="card-sub" id="step3Sub">Select categories</p>
+
+        <div class="cat-grid" id="catGridHome" style="display:none;">
+          <?php foreach ($categories as $cat): ?>
+            <label class="select-card cat-item" onclick="toggleCat(this)">
+              <input type="checkbox" value="<?php echo $cat['id']; ?>">
+              <i class="bi bi-check2-square icon"></i> <?php echo htmlspecialchars($cat['name']); ?>
+            </label>
+          <?php endforeach; ?>
+        </div>
+
+        <div class="cat-grid" id="catGridTech" style="display:none;">
+          <?php foreach ($categories as $cat): ?>
+            <label class="select-card cat-item" onclick="selectSpecialty(this, '<?php echo $cat['id']; ?>')">
+              <i class="bi bi-star icon"></i> <?php echo htmlspecialchars($cat['name']); ?>
+            </label>
+          <?php endforeach; ?>
+        </div>
+        <div class="field-error text-center mb-3" id="err-specialty">Please select your specialty</div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="goBack(3)">Back</button>
+          <button type="button" class="btn-primary" onclick="goNext(3)">Continue <i class="bi bi-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <div class="step-panel" id="step4">
+        <h2 class="card-title">Final Details</h2>
+        <p class="card-sub">Almost there! Where are you located?</p>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">Country</label>
+            <input type="text" name="country" class="form-input" placeholder="Jordan">
+          </div>
+          <div class="col-md-6 form-group mb-0">
+            <label class="form-label">City</label>
+            <input type="text" name="city" class="form-input" placeholder="Amman">
+          </div>
+        </div>
+
+        <div class="form-group mb-4" id="techExpDiv" style="display:none;">
+          <label class="form-label">Years of Experience: <span id="expVal" class="text-white ms-2 fs-5">5</span></label>
+          <input type="range" name="experience" min="1" max="30" value="5" class="w-100" style="accent-color: var(--orange);" oninput="document.getElementById('expVal').textContent = this.value">
+        </div>
+
+        <div class="terms-box">
+          By joining Maintify, you agree to our Terms of Service and Privacy Policy. We collect data to connect users securely. Ensure all provided information is accurate.
+        </div>
+        <label class="terms-check">
+          <input type="checkbox" id="termsCheck"> I agree to the Terms & Conditions
+        </label>
+        <div class="field-error" id="err-terms">You must accept the Terms</div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-back" onclick="goBack(4)">Back</button>
+          <button type="button" class="btn-primary" onclick="submitForm()">Create Account <i class="bi bi-check-lg ms-1"></i></button>
+        </div>
+      </div>
+
+    </form>
   </div>
 </div>
 
 <script>
-const TOTAL_STEPS = 4;
-let currentStep = 1;
-let selectedRole = '';
-let selectedSpecialty = '';
+  let currentStep = 1;
+  let selectedRole = '';
+  let selectedSpecialty = '';
 
-// ── Helpers ──────────────────────────────────────────────────────────
-function showError(id, msg) {
-    const el = document.getElementById('err-' + id);
-    if (!el) return;
-    if (msg) el.textContent = msg;
-    el.classList.add('show');
-}
+  // Helper Functions
+  const el = id => document.getElementById(id);
+  const q = sel => document.querySelector(sel);
+  const qAll = sel => document.querySelectorAll(sel);
 
-function clearError(id) {
-    const el = document.getElementById('err-' + id);
-    if (el) el.classList.remove('show');
-}
-
-function markInvalid(inputEl) {
-    if (inputEl) inputEl.classList.add('is-invalid');
-}
-
-function markValid(inputEl) {
-    if (inputEl) inputEl.classList.remove('is-invalid');
-}
-
-// Clear error on user input
-document.addEventListener('input', function (e) {
-    const name = e.target.name || e.target.id;
-    if (name) clearError(name);
-    if (e.target.classList.contains('is-invalid')) markValid(e.target);
-});
-
-// ── Progress Bar ─────────────────────────────────────────────────────
-function buildProgress(total) {
-    const el = document.getElementById('progressSteps');
-    if (!el) return;
-    el.innerHTML = '';
-    for (let i = 1; i <= total; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'step-dot';
-        dot.id = 'dot' + i;
-        dot.innerHTML = '<span>' + i + '</span>';
-        el.appendChild(dot);
-        if (i < total) {
-            const line = document.createElement('div');
-            line.className = 'step-line';
-            line.id = 'line' + i;
-            el.appendChild(line);
-        }
+  function showError(id, msg) {
+    const err = el('err-' + id);
+    if (err) {
+      err.textContent = msg;
+      err.classList.add('show');
     }
-    updateProgress();
-}
+  }
 
-function updateProgress() {
-    for (let i = 1; i <= TOTAL_STEPS; i++) {
-        const dot = document.getElementById('dot' + i);
-        if (!dot) continue;
-        dot.className = 'step-dot';
-        if (i < currentStep) dot.classList.add('done');
-        else if (i === currentStep) dot.classList.add('active');
-        const line = document.getElementById('line' + i);
-        if (line) line.className = 'step-line' + (i < currentStep ? ' done' : '');
+  function clearErrors() {
+    qAll('.field-error').forEach(e => e.classList.remove('show'));
+    qAll('.is-invalid').forEach(e => e.classList.remove('is-invalid'));
+  }
+
+  function markInvalid(input) {
+    if (input) input.classList.add('is-invalid');
+  }
+
+  // Clear error on typing
+  document.addEventListener('input', e => {
+    if (e.target.classList.contains('is-invalid')) {
+      e.target.classList.remove('is-invalid');
+      const err = el('err-' + e.target.name);
+      if (err) err.classList.remove('show');
     }
-}
+  });
 
-function showPanel(id) {
-    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-    const el = document.getElementById(id);
-    if (el) el.classList.add('active');
-}
+  function updateIndicators(step) {
+    for (let i = 1; i <= 4; i++) {
+      el('ind' + i).className = i <= step ? 'step-dot active' : 'step-dot';
+    }
+  }
 
-// ── Validation helpers ───────────────────────────────────────────────
-function validateStep1() {
+  function showStep(step) {
+    qAll('.step-panel').forEach(p => p.classList.remove('active'));
+    el('step' + step).classList.add('active');
+    updateIndicators(step);
+  }
+
+  // Validation Step 1
+  function validateStep1() {
+    clearErrors();
     let valid = true;
+    const fn = q('[name="first_name"]'),
+      ln = q('[name="last_name"]'),
+      em = q('[name="email"]');
+    const pw = el('pwInput'),
+      cpw = el('confirmPw'),
+      phone = q('[name="phone"]'),
+      age = q('[name="age"]');
 
-    const firstName = document.querySelector('[name="first_name"]');
-    const lastName  = document.querySelector('[name="last_name"]');
-    const email     = document.querySelector('[name="email"]');
-    const pw        = document.getElementById('pwInput');
-    const cpw       = document.getElementById('confirmPw');
-    const phonenumber  = document.getElementById('phone-number');
-
-    if (!firstName.value.trim()) {
-        markInvalid(firstName); showError('first_name', 'First name is required'); valid = false;
-    } else { markValid(firstName); clearError('first_name'); }
-
-    if (!lastName.value.trim()) {
-        markInvalid(lastName); showError('last_name', 'Last name is required'); valid = false;
-    } else { markValid(lastName); clearError('last_name'); }
-
-    const emailVal = email.value.trim();
-    if (!emailVal || !emailVal.includes('@') || !emailVal.includes('.')) {
-        markInvalid(email); showError('email', 'Please enter a valid email address'); valid = false;
-    } else { markValid(email); clearError('email'); }
-
+    if (!fn.value.trim()) {
+      markInvalid(fn);
+      showError('first_name', 'Required');
+      valid = false;
+    }
+    if (!ln.value.trim()) {
+      markInvalid(ln);
+      showError('last_name', 'Required');
+      valid = false;
+    }
+    if (!em.value.trim() || !em.value.includes('@')) {
+      markInvalid(em);
+      showError('email', 'Valid email required');
+      valid = false;
+    }
     if (pw.value.length < 6) {
-        markInvalid(pw); showError('password', 'Password must be at least 6 characters'); valid = false;
-    } else { markValid(pw); clearError('password'); }
+      markInvalid(pw);
+      showError('password', 'Min 6 chars');
+      valid = false;
+    }
+    if (pw.value !== cpw.value || !cpw.value) {
+      markInvalid(cpw);
+      showError('confirmPw', 'Passwords do not match');
+      valid = false;
+    }
 
-    if (pw.value !== cpw.value || cpw.value === '') {
-        markInvalid(cpw); showError('confirmPw', 'Passwords do not match'); valid = false;
-    } else { markValid(cpw); clearError('confirmPw'); }
+    if (!age.value || age.value < 16) {
+      markInvalid(age);
+      showError('age', 'Valid age required');
+      valid = false;
+    }
+    const phoneRegex = /^(\+962|0)7[0-9]{8}$/;
+    if (!phone.value || !phoneRegex.test(phone.value)) {
+      markInvalid(phone);
+      showError('phone', 'Valid JD number required');
+      valid = false;
+    }
 
-    const gender = document.getElementById('genderInput');
-    if (!gender.value) {
-        markInvalid(gender); showError('gender', 'Please select your gender'); valid = false;
-    } else { markValid(gender); clearError('gender'); }
-
-    const age = document.getElementById('ageInput');
-    const ageVal = parseInt(age.value);
-    if (!age.value || ageVal < 16 || ageVal > 100) {
-        markInvalid(age); showError('age', 'Please enter a valid age (16–60)'); valid = false;
-    } else { markValid(age); clearError('age'); }
-
-    const phoneVal = phonenumber.value.trim();
-
-// خيار 1: رقم أردني (07XXXXXXXX)
-const phoneRegex = /^(\+962|0)7[0-9]{8}$/;
-
-// خيار 2 (بديل): يدعم +962 أو 07
-// const phoneRegex = /^(\+962|0)7[0-9]{8}$/;
-
-if (!phoneVal || !phoneRegex.test(phoneVal)) {
-    markInvalid(phonenumber);
-    showError('phone', 'Please enter a valid phone number (e.g. 962 7XXXXXXXX)');
-    valid = false;
-} else {
-    markValid(phonenumber);
-    clearError('phone');
-}
     return valid;
-}
+  }
 
-// ── Next ─────────────────────────────────────────────────────────────
-function goNext(step) {
-
+  // Navigation Functions
+  function goNext(step) {
     if (step === 1) {
-        if (!validateStep1()) return;
-        currentStep = 2;
-        updateProgress();
-        showPanel('step2');
-    }
-
-    else if (step === 2) {
-        if (!selectedRole) {
-            showError('role', 'Please select a role to continue');
-            document.getElementById('roleHomeowner').classList.add('is-invalid');
-            document.getElementById('roleTechnician').classList.add('is-invalid');
-            return;
-        }
-        clearError('role');
-
-        if (selectedRole === 'homeowner') {
-            currentStep = 4;
-            updateProgress();
-            showPanel('step4home');
-        } else {
-            currentStep = 3;
-            updateProgress();
-            showPanel('step3tech');
-        }
-    }
-
-    else if (step === 3) {
-        if (!selectedSpecialty) {
-            showError('specialty', 'Please select your specialty');
-            return;
-        }
-        clearError('specialty');
-        document.getElementById('specialtyInput').value = selectedSpecialty;
-        currentStep = 4;
-        updateProgress();
-        showPanel('step4tech');
-    }
-}
-
-// ── Back ─────────────────────────────────────────────────────────────
-function goBack(step) {
-    if (step === 2) { currentStep = 1; updateProgress(); showPanel('step1'); }
-    else if (step === 3) { currentStep = 2; updateProgress(); showPanel('step2'); }
-    else if (step === 4) {
-        if (selectedRole === 'homeowner') { currentStep = 2; updateProgress(); showPanel('step2'); }
-        else { currentStep = 3; updateProgress(); showPanel('step3tech'); }
-    }
-}
-
-// ── Role select ───────────────────────────────────────────────────────
-function selectRole(role) {
-    selectedRole = role;
-    document.getElementById('roleInput').value = role;
-    document.getElementById('roleHomeowner').classList.toggle('selected', role === 'homeowner');
-    document.getElementById('roleTechnician').classList.toggle('selected', role === 'technician');
-    // Remove invalid highlight once selected
-    document.getElementById('roleHomeowner').classList.remove('is-invalid');
-    document.getElementById('roleTechnician').classList.remove('is-invalid');
-    clearError('role');
-}
-
-// ── Cat toggles ───────────────────────────────────────────────────────
-function toggleCat(el, type) {
-    el.classList.toggle('selected');
-    const ids = [...document.querySelectorAll('#catGridHome .cat-item.selected')]
-        .map(i => i.querySelector('input').value);
-    document.getElementById('interestsInput').value = ids.join(',');
-}
-
-function selectSpecialty(el, val) {
-    document.querySelectorAll('#catGridTech .cat-item').forEach(i => i.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedSpecialty = val;
-    clearError('specialty');
-}
-
-// ── Submit ────────────────────────────────────────────────────────────
-function submitForm(type) {
-    const termsId    = type === 'home' ? 'termsHome' : 'termsTech';
-    const termsLabel = type === 'home' ? 'termsHomeLabel' : 'termsTechLabel';
-    const termsEl    = document.getElementById(termsId);
-
-    if (!termsEl.checked) {
-        showError(termsId, 'You must accept the Terms & Conditions');
-        document.getElementById(termsLabel).classList.add('is-invalid');
+      if (!validateStep1()) return;
+      currentStep = 2;
+      showStep(2);
+    } else if (step === 2) {
+      if (!selectedRole) {
+        el('roleHomeowner').classList.add('is-invalid');
+        el('roleTechnician').classList.add('is-invalid');
+        showError('role', 'Please select a role');
         return;
-    }
-    clearError(termsId);
-    document.getElementById(termsLabel).classList.remove('is-invalid');
+      }
 
-    if (type === 'tech') {
-        const techCountry = document.querySelector('[name="country_tech"]').value;
-        const techCity    = document.querySelector('[name="city_tech"]').value;
-        document.querySelector('[name="country"]').value = techCountry;
-        document.querySelector('[name="city"]').value    = techCity;
-    }
+      // Setup Step 3 based on role
+      if (selectedRole === 'homeowner') {
+        el('step3Title').textContent = 'What are you interested in?';
+        el('step3Sub').textContent = 'Select categories you need help with';
+        el('catGridHome').style.display = 'grid';
+        el('catGridTech').style.display = 'none';
+      } else {
+        el('step3Title').textContent = 'What is your specialty?';
+        el('step3Sub').textContent = 'Choose your main expertise';
+        el('catGridHome').style.display = 'none';
+        el('catGridTech').style.display = 'grid';
+      }
+      currentStep = 3;
+      showStep(3);
+    } else if (step === 3) {
+      if (selectedRole === 'technician' && !selectedSpecialty) {
+        showError('specialty', 'Please select your specialty');
+        return;
+      }
 
-    document.getElementById('regForm').submit();
-}
-
-// ── Terms checkbox: clear error on check ─────────────────────────────
-document.addEventListener('change', function (e) {
-    if (e.target.id === 'termsHome') {
-        clearError('termsHome');
-        document.getElementById('termsHomeLabel').classList.remove('is-invalid');
+      // Setup Step 4 based on role
+      el('techExpDiv').style.display = selectedRole === 'technician' ? 'block' : 'none';
+      currentStep = 4;
+      showStep(4);
     }
-    if (e.target.id === 'termsTech') {
-        clearError('termsTech');
-        document.getElementById('termsTechLabel').classList.remove('is-invalid');
-    }
-});
+  }
 
-// ── Password strength ─────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
-    buildProgress(TOTAL_STEPS);
-    showPanel('step1');
+  function goBack(step) {
+    currentStep = step - 1;
+    showStep(currentStep);
+  }
 
-    const pwInput = document.getElementById('pwInput');
-    if (pwInput) {
-        pwInput.addEventListener('input', function () {
-            const pw  = this.value;
-            const bar = document.getElementById('pwStrength');
-            bar.className = 'pw-strength';
-            if (pw.length === 0) return;
-            if (pw.length < 6) bar.classList.add('weak');
-            else if (pw.length < 10 || !/[A-Z]/.test(pw) || !/[0-9]/.test(pw)) bar.classList.add('medium');
-            else bar.classList.add('strong');
-        });
+  // Selections
+  function selectRole(role) {
+    selectedRole = role;
+    el('roleInput').value = role;
+    el('roleHomeowner').className = role === 'homeowner' ? 'select-card selected' : 'select-card';
+    el('roleTechnician').className = role === 'technician' ? 'select-card selected' : 'select-card';
+    clearErrors();
+  }
+
+  function toggleCat(element) {
+    element.classList.toggle('selected');
+    const cb = element.querySelector('input');
+    cb.checked = !cb.checked;
+
+    // Update hidden input
+    const ids = Array.from(qAll('#catGridHome .select-card.selected input')).map(i => i.value);
+    el('interestsInput').value = ids.join(',');
+  }
+
+  function selectSpecialty(element, val) {
+    qAll('#catGridTech .select-card').forEach(e => e.classList.remove('selected'));
+    element.classList.add('selected');
+    selectedSpecialty = val;
+    el('specialtyInput').value = val;
+    clearErrors();
+  }
+
+  // Final Submit
+  function submitForm() {
+    if (!el('termsCheck').checked) {
+      showError('terms', 'You must accept the Terms');
+      return;
     }
-});
+    el('regForm').submit();
+  }
 </script>
 
 <?php include_once 'includes/footer.php'; ?>

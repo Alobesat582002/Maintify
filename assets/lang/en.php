@@ -215,4 +215,86 @@ $lang = [
     'rejected_bid' => 'Rejected',
     'no_bids_yet' => 'No bids yet',
     'waiting_bids' => 'Waiting for technicians to submit their proposals.',
+
+    // --- Complaints & Suggestions ---
+    'complaints_suggestions' => 'Complaints & Suggestions',
+    'submit_ticket' => 'Submit a Ticket',
+    'ticket_type' => 'Ticket Type',
+    'complaint' => 'Complaint',
+    'suggestion' => 'Suggestion',
+    'complaint_target' => 'Complaint About',
+    'system_error' => 'System Error',
+    'person_complaint' => 'A Specific Person',
+    'select_person' => 'Select Technician',
+    'complaint_reason' => 'Complaint Category',
+    'maintenance_issue' => 'Maintenance / Work Quality Issue',
+    'personal_issue' => 'Personal / Behavioral Issue',
+    'other_issue' => 'Other',
+    'suggestion_type' => 'Suggestion Type',
+    'ui_improvement' => 'Interface Improvement',
+    'new_feature' => 'New Feature Request',
+    'details_label' => 'Description / Details',
+    'submit_btn' => 'Submit',
+    // --- Complaints Notifications ---
+    'notif_complaint_title' => 'Complaint Received 🛡️',
+    'notif_complaint_msg' => 'We have received your complaint. Our team will review and investigate it shortly.',
+    'notif_suggestion_title' => 'Suggestion Received 💡',
+    'notif_suggestion_msg' => 'Thank you for your suggestion! We will review it to improve our services.',
+    'my_tickets_history' => 'My Tickets History',
+    'submit_new_ticket' => 'Submit New Ticket',
+
+    // --- Technician Dashboard ---
+    'find_jobs' => 'Find Jobs',
+    'my_proposals' => 'My Proposals',
+    'date_submitted' => 'Date Submitted',
+    'no_proposals_yet' => 'You haven\'t submitted any proposals yet.',
+
+    // --- Browse Jobs Page ---
+    'available_maintenance_jobs' => 'Available Maintenance Jobs',
+    'browse_open_requests' => 'Browse open requests from homeowners and submit your proposals.',
+    'location_not_specified' => 'Location not specified',
+    'view_details_bid' => 'View Details & Bid',
+    'no_open_jobs' => 'No open jobs available right now',
+    'check_back_later' => 'Check back later. Homeowners are posting new jobs every day.',
+
+    // --- My Bids Page ---
+    'find_more_jobs' => 'Find More Jobs',
+    'by_owner' => 'By:',
+    'view_details' => 'View Details',
+
+    // --- Job Details (Technician) ---
+    'back_to_browse' => 'Back to Browse',
+    'job_description' => 'Description',
+    'location_label' => 'Location:',
+    'posted_label' => 'Posted:',
+    'send_proposal' => 'Send Your Proposal',
+    'your_price' => 'Your Price ($)',
+    'price_placeholder' => 'Enter your total cost',
+    'your_proposal_comment' => 'Your Proposal / Comment',
+    'proposal_placeholder' => 'Explain how you will fix the problem...',
+    'submit_bid_btn' => 'Submit Bid',
+    'already_bid_msg' => 'You have already submitted a bid for $',
+    'homeowner_role' => 'Homeowner',
+    'chat_with_owner' => 'Chat with Owner',
+    'notif_new_bid_title' => 'New Bid Received! 🎉',
+    'notif_new_bid_msg' => 'A technician has placed a bid on your job: ',
+
+    // --- Chat & Messages System ---
+    'my_messages' => 'My Messages',
+    'new_message_btn' => 'New Message',
+    'search_messages_placeholder' => 'Search messages...',
+    'filter_btn' => 'Filter',
+    'all_roles' => 'All Roles',
+    'customer' => 'Customer',
+    'technician' => 'Technician',
+    'delete_convo' => 'Delete Conversation',
+    'no_messages_found' => 'No messages found',
+    'start_chatting' => 'Select a message to start chatting',
+    'chat_placeholder' => 'Type your message...',
+
+    // --- Technician Complaints ---
+    'unresponsive_customer' => 'Unresponsive Customer',
+    'payment_issue' => 'Payment / Financial Issue',
+    'inaccurate_description' => 'Inaccurate Job Description',
+    'select_customer' => 'Select Customer',
 ];

@@ -11,6 +11,7 @@ $success = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    
     // 1. تحديث حالة الشكوى
     if ($_POST['action'] === 'update_status') {
         $complaint_id = $_POST['complaint_id'];
@@ -19,6 +20,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $stmt = $pdo->prepare("UPDATE complaints SET status = ? WHERE id = ?");
         if ($stmt->execute([$status, $complaint_id])) {
             $success = "Complaint status updated successfully.";
+
+            // --- إرسال إشعار للمستخدم بتحديث الحالة ---
+            $rep_stmt = $pdo->prepare("SELECT reporter_id FROM complaints WHERE id = ?");
+            $rep_stmt->execute([$complaint_id]);
+            $reporter_id = $rep_stmt->fetchColumn();
+
+            if ($reporter_id) {
+                // جلب دور المستخدم لتحديد مسار الرابط الصحيح
+                $role_stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+                $role_stmt->execute([$reporter_id]);
+                $reporter_role = $role_stmt->fetchColumn();
+                $folder = ($reporter_role === 'technician') ? 'Technician' : 'Homeowner';
+
+                $status_ar = ($status == 'reviewed') ? 'قيد المراجعة' : (($status == 'resolved') ? 'تم الحل' : 'قيد الانتظار');
+                
+                $notif_title = "تحديث حالة التذكرة 🔔 | Ticket Status Update";
+                $notif_message = "تذكرتك الآن في حالة: $status_ar | Your ticket status is now: " . ucfirst($status);
+                $notif_link = "$folder/complaints.php";
+
+                $notif_insert = $pdo->prepare("INSERT INTO notifications (user_id, title, message, link) VALUES (?, ?, ?, ?)");
+                $notif_insert->execute([$reporter_id, $notif_title, $notif_message, $notif_link]);
+            }
         } else {
             $error = "Failed to update status.";
         }
@@ -42,6 +65,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt2 = $pdo->prepare("UPDATE complaints SET status = 'resolved' WHERE id = ?");
                 $stmt2->execute([$complaint_id]);
                 
+                // --- إرسال إشعار للمشتكي بأنه تم اتخاذ الإجراء ---
+                $rep_stmt = $pdo->prepare("SELECT reporter_id FROM complaints WHERE id = ?");
+                $rep_stmt->execute([$complaint_id]);
+                $reporter_id = $rep_stmt->fetchColumn();
+
+                if ($reporter_id) {
+                    $role_stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+                    $role_stmt->execute([$reporter_id]);
+                    $reporter_role = $role_stmt->fetchColumn();
+                    $folder = ($reporter_role === 'technician') ? 'Technician' : 'Homeowner';
+
+                    $notif_title = "تم حل الشكوى 🛡️ | Complaint Resolved";
+                    $notif_message = "تم اتخاذ الإجراء الحاسم بحق المشتكى عليه، شكراً لتعاونك. | Appropriate action has been taken against the reported user. Thank you.";
+                    $notif_link = "$folder/complaints.php";
+
+                    $notif_insert = $pdo->prepare("INSERT INTO notifications (user_id, title, message, link) VALUES (?, ?, ?, ?)");
+                    $notif_insert->execute([$reporter_id, $notif_title, $notif_message, $notif_link]);
+                }
+
                 $pdo->commit();
                 $success = "User suspended and complaint marked as resolved.";
             } catch (Exception $e) {
@@ -62,7 +104,7 @@ $query = "
            j.title AS job_title
     FROM complaints c
     JOIN users u1 ON c.reporter_id = u1.id
-    JOIN users u2 ON c.reported_user_id = u2.id
+    LEFT JOIN users u2 ON c.reported_user_id = u2.id
     LEFT JOIN job_requests j ON c.job_id = j.id
     ORDER BY c.created_at DESC
 ";
@@ -78,7 +120,7 @@ include_once '../includes/navbar.php';
 
     <div class="admin-content p-4 p-md-5 w-100">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Manage Complaints</h2>
+            <h2 class="fw-bold">Manage Complaints & Suggestions</h2>
         </div>
 
         <?php if ($success): ?>
@@ -94,7 +136,8 @@ include_once '../includes/navbar.php';
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="ps-4 py-3">Reporter</th>
+                                <th class="ps-4 py-3">Type</th>
+                                <th class="py-3">Reporter</th>
                                 <th class="py-3">Reported User</th>
                                 <th class="py-3">Reason</th>
                                 <th class="py-3">Status</th>
@@ -105,20 +148,28 @@ include_once '../includes/navbar.php';
                             <?php foreach ($complaints as $c): ?>
                                 <tr>
                                     <td class="ps-4">
+                                        <span class="badge <?php echo $c['type'] == 'complaint' ? 'bg-danger' : 'bg-info'; ?>">
+                                            <?php echo ucfirst($c['type']); ?>
+                                        </span>
+                                    </td>
+                                    <td>
                                         <div class="fw-bold text-dark"><?php echo htmlspecialchars($c['reporter_fname']); ?></div>
                                         <span class="badge bg-secondary small"><?php echo ucfirst($c['reporter_role']); ?></span>
                                     </td>
                                     
                                     <td>
-                                        <div class="fw-bold text-danger"><?php echo htmlspecialchars($c['reported_fname']); ?></div>
-                                        <?php if($c['reported_status'] === 'suspended'): ?>
-                                            <span class="badge bg-danger">Suspended</span>
+                                        <?php if($c['reported_user_id']): ?>
+                                            <div class="fw-bold text-danger"><?php echo htmlspecialchars($c['reported_fname']); ?></div>
+                                            <?php if($c['reported_status'] === 'suspended'): ?>
+                                                <span class="badge bg-danger">Suspended</span>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <span class="text-muted small">N/A</span>
                                         <?php endif; ?>
                                     </td>
                                     
                                     <td>
                                         <div class="fw-bold"><?php echo htmlspecialchars($c['reason']); ?></div>
-                                        <small class="text-muted">Job: <?php echo htmlspecialchars($c['job_title'] ?? 'General'); ?></small>
                                     </td>
                                     
                                     <td>
@@ -141,11 +192,11 @@ include_once '../includes/navbar.php';
                                     <div class="modal-dialog modal-lg modal-dialog-centered">
                                         <div class="modal-content border-0 shadow">
                                             <div class="modal-header bg-dark text-white border-0">
-                                                <h5 class="modal-title fw-bold">Complaint Overview</h5>
+                                                <h5 class="modal-title fw-bold">Ticket Overview</h5>
                                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body p-4">
-                                                <h6 class="fw-bold text-primary mb-2">Complaint Details:</h6>
+                                                <h6 class="fw-bold text-primary mb-2">Details:</h6>
                                                 <p class="p-3 bg-light rounded border"><?php echo nl2br(htmlspecialchars($c['details'])); ?></p>
                                                 
                                                 <div class="row mt-4">
@@ -164,16 +215,20 @@ include_once '../includes/navbar.php';
                                                     </div>
                                                     <div class="col-md-6 ps-4">
                                                         <h6 class="fw-bold text-danger">Take Action (Suspend)</h6>
-                                                        <?php if ($c['reported_status'] === 'active'): ?>
-                                                            <form action="manage_complaints.php" method="POST" class="d-flex gap-2">
-                                                                <input type="hidden" name="action" value="suspend_user">
-                                                                <input type="hidden" name="complaint_id" value="<?php echo $c['id']; ?>">
-                                                                <input type="hidden" name="target_user_id" value="<?php echo $c['reported_user_id']; ?>">
-                                                                <input type="number" name="suspend_days" class="form-control form-control-sm" placeholder="Days" required>
-                                                                <button type="submit" class="btn btn-sm btn-danger">Suspend</button>
-                                                            </form>
+                                                        <?php if ($c['reported_user_id']): ?>
+                                                            <?php if ($c['reported_status'] === 'active'): ?>
+                                                                <form action="manage_complaints.php" method="POST" class="d-flex gap-2">
+                                                                    <input type="hidden" name="action" value="suspend_user">
+                                                                    <input type="hidden" name="complaint_id" value="<?php echo $c['id']; ?>">
+                                                                    <input type="hidden" name="target_user_id" value="<?php echo $c['reported_user_id']; ?>">
+                                                                    <input type="number" name="suspend_days" class="form-control form-control-sm" placeholder="Days" required>
+                                                                    <button type="submit" class="btn btn-sm btn-danger">Suspend</button>
+                                                                </form>
+                                                            <?php else: ?>
+                                                                <span class="text-muted small">User is already suspended.</span>
+                                                            <?php endif; ?>
                                                         <?php else: ?>
-                                                            <span class="text-muted small">User is already suspended.</span>
+                                                            <span class="text-muted small">Not applicable for this ticket type.</span>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>

@@ -216,4 +216,86 @@ $lang = [
     'rejected_bid' => 'مرفوض',
     'no_bids_yet' => 'لا توجد عروض بعد',
     'waiting_bids' => 'في انتظار تقديم الفنيين لعروضهم.',
+
+    // --- Complaints & Suggestions ---
+    'complaints_suggestions' => 'الشكاوي والاقتراحات',
+    'submit_ticket' => 'تقديم تذكرة',
+    'ticket_type' => 'نوع التذكرة',
+    'complaint' => 'شكوى',
+    'suggestion' => 'اقتراح',
+    'complaint_target' => 'موضوع الشكوى',
+    'system_error' => 'خطأ في النظام',
+    'person_complaint' => 'شكوى ضد شخص',
+    'select_person' => 'اختر الفني',
+    'complaint_reason' => 'تصنيف الشكوى',
+    'maintenance_issue' => 'مشكلة في الصيانة / جودة العمل',
+    'personal_issue' => 'مشكلة شخصية / سلوكية',
+    'other_issue' => 'أخرى',
+    'suggestion_type' => 'نوع الاقتراح',
+    'ui_improvement' => 'تحسين واجهة المستخدم',
+    'new_feature' => 'طلب ميزة جديدة',
+    'details_label' => 'الوصف / التفاصيل',
+    'submit_btn' => 'إرسال',
+    // --- Complaints Notifications ---
+    'notif_complaint_title' => 'تم استلام الشكوى 🛡️',
+    'notif_complaint_msg' => 'لقد استلمنا شكواك، وسيقوم فريقنا بمراجعتها والتحقق منها في أقرب وقت.',
+    'notif_suggestion_title' => 'تم استلام الاقتراح 💡',
+    'notif_suggestion_msg' => 'شكراً لاقتراحك! سنعمل على مراجعته في أقرب وقت لتحسين خدماتنا.',
+    'my_tickets_history' => 'سجل التذاكر',
+    'submit_new_ticket' => 'تقديم تذكرة جديدة',
+
+    // --- Technician Dashboard ---
+    'find_jobs' => 'البحث عن طلبات',
+    'my_proposals' => 'عروضي',
+    'date_submitted' => 'تاريخ التقديم',
+    'no_proposals_yet' => 'لم تقم بتقديم أي عروض حتى الآن.',
+
+    // --- Browse Jobs Page ---
+    'available_maintenance_jobs' => 'طلبات الصيانة المتاحة',
+    'browse_open_requests' => 'تصفح الطلبات المفتوحة من أصحاب المنازل وقدم عروضك.',
+    'location_not_specified' => 'الموقع غير محدد',
+    'view_details_bid' => 'عرض التفاصيل وتقديم عرض',
+    'no_open_jobs' => 'لا توجد طلبات مفتوحة حالياً',
+    'check_back_later' => 'عد لاحقاً. يقوم أصحاب المنازل بنشر طلبات جديدة كل يوم.',
+
+    // --- My Bids Page ---
+    'find_more_jobs' => 'ابحث عن المزيد',
+    'by_owner' => 'بواسطة:',
+    'view_details' => 'عرض التفاصيل',
+
+    // --- Job Details (Technician) ---
+    'back_to_browse' => 'العودة للتصفح',
+    'job_description' => 'الوصف',
+    'location_label' => 'الموقع:',
+    'posted_label' => 'تاريخ النشر:',
+    'send_proposal' => 'أرسل عرضك',
+    'your_price' => 'السعر المقترح ($)',
+    'price_placeholder' => 'أدخل التكلفة الإجمالية',
+    'your_proposal_comment' => 'عرضك / تعليقك',
+    'proposal_placeholder' => 'اشرح كيف ستقوم بحل المشكلة...',
+    'submit_bid_btn' => 'تقديم العرض',
+    'already_bid_msg' => 'لقد قمت مسبقاً بتقديم عرض بقيمة $',
+    'homeowner_role' => 'صاحب المنزل',
+    'chat_with_owner' => 'محادثة صاحب المنزل',
+    'notif_new_bid_title' => 'تم استلام عرض جديد! 🎉',
+    'notif_new_bid_msg' => 'قام أحد الفنيين بتقديم عرض على طلبك: ',
+
+    // --- Chat & Messages System ---
+    'my_messages' => 'رسائلي',
+    'new_message_btn' => 'رسالة جديدة',
+    'search_messages_placeholder' => 'البحث في الرسائل...',
+    'filter_btn' => 'تصفية',
+    'all_roles' => 'جميع الأدوار',
+    'customer' => 'عميل',
+    'technician' => 'فني',
+    'delete_convo' => 'حذف المحادثة',
+    'no_messages_found' => 'لم يتم العثور على رسائل',
+    'start_chatting' => 'اختر رسالة لبدء المحادثة',
+    'chat_placeholder' => 'اكتب رسالتك...',
+
+    // --- Technician Complaints ---
+    'unresponsive_customer' => 'عميل غير متجاوب',
+    'payment_issue' => 'مشكلة في الدفع / خلاف مالي',
+    'inaccurate_description' => 'وصف الطلب مضلل أو غير دقيق',
+    'select_customer' => 'اختر العميل',
 ];

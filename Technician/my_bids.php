@@ -26,57 +26,67 @@ include_once '../includes/header.php';
 include_once '../includes/navbar.php';
 ?>
 
-<div class="container mt-5" style="min-height: 70vh;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">My Proposals</h2>
-        <a href="browse_jobs.php" class="btn btn-primary">+ Find More Jobs</a>
-    </div>
+<div class="google-wrapper">
+    <?php include_once '../includes/user_sidebar.php'; ?>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
+    <main class="google-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-1"><?php echo $lang['my_proposals']; ?></h3>
+            <a href="browse_jobs.php" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                <i class="bi bi-search me-1"></i> <?php echo $lang['find_more_jobs']; ?>
+            </a>
+        </div>
+
+        <div class="google-card p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0 align-middle">
-                    <thead class="table-light">
+                <table class="table table-hover mb-0 align-middle border-0">
+                    <thead class="bg-light">
                         <tr>
-                            <th class="ps-4">Job Title</th>
-                            <th>Category</th>
-                            <th>Your Bid</th>
-                            <th>Status</th>
-                            <th>Date Submitted</th>
-                            <th class="text-end pe-4">Action</th>
+                            <th class="ps-4 py-3 text-muted small border-0"><?php echo $lang['job_title']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['category']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['my_bid']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['status']; ?></th>
+                            <th class="py-3 text-muted small border-0"><?php echo $lang['date_submitted']; ?></th>
+                            <th class="text-end pe-4 py-3 text-muted small border-0"><?php echo $lang['action']; ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (count($my_bids) > 0): ?>
                             <?php foreach ($my_bids as $bid): ?>
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-bold text-dark"><?php echo htmlspecialchars($bid['job_title']); ?></div>
-                                        <small class="text-muted">By: <?php echo htmlspecialchars($bid['owner_name']); ?></small>
+                                    <td class="ps-4 py-3 border-light">
+                                        <div class="fw-bold text-dark mb-1"><?php echo htmlspecialchars($bid['job_title']); ?></div>
+                                        <small class="text-muted"><i class="bi bi-person me-1"></i><?php echo $lang['by_owner']; ?> <?php echo htmlspecialchars($bid['owner_name']); ?></small>
                                     </td>
-                                    <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($bid['category_name']); ?></span></td>
-                                    <td><span class="fw-bold text-success">$<?php echo number_format($bid['price'], 2); ?></span></td>
-                                    <td>
+                                    <td class="py-3 border-light">
+                                        <span class="badge bg-light text-secondary border rounded-pill px-3"><?php echo htmlspecialchars($bid['category_name']); ?></span>
+                                    </td>
+                                    <td class="py-3 border-light">
+                                        <span class="fw-bold text-success" dir="ltr">$<?php echo number_format($bid['price'], 2); ?></span>
+                                    </td>
+                                    <td class="py-3 border-light">
                                         <?php 
                                             $status_class = 'bg-warning text-dark'; // Pending
                                             if ($bid['status'] == 'accepted') $status_class = 'bg-success';
                                             if ($bid['status'] == 'rejected') $status_class = 'bg-danger';
                                         ?>
-                                        <span class="badge <?php echo $status_class; ?>">
+                                        <span class="badge <?php echo $status_class; ?> rounded-pill px-3 py-2">
                                             <?php echo ucfirst($bid['status']); ?>
                                         </span>
                                     </td>
-                                    <td class="text-muted small"><?php echo date('M d, Y', strtotime($bid['created_at'])); ?></td>
-                                    <td class="text-end pe-4">
-                                        <a href="job_details.php?id=<?php echo $bid['job_id']; ?>" class="btn btn-sm btn-outline-primary">View Details</a>
+                                    <td class="text-muted small py-3 border-light">
+                                        <?php echo date('M d, Y', strtotime($bid['created_at'])); ?>
+                                    </td>
+                                    <td class="text-end pe-4 py-3 border-light">
+                                        <a href="job_details.php?id=<?php echo $bid['job_id']; ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold"><?php echo $lang['view_details']; ?></a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
-                                    You haven't submitted any proposals yet.
+                                <td colspan="6" class="text-center py-5 text-muted border-0">
+                                    <i class="bi bi-file-earmark-text fs-1 d-block mb-3 text-light-subtle"></i>
+                                    <?php echo $lang['no_proposals_yet']; ?>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -84,7 +94,7 @@ include_once '../includes/navbar.php';
                 </table>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <?php include_once '../includes/footer.php'; ?>
