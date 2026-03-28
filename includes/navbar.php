@@ -29,7 +29,7 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
 
         <a class="navbar-brand d-flex align-items-center brand-hover-glow" href="<?php echo $base_url; ?>index.php" style="text-decoration: none;">
             <img src="<?php echo $base_url; ?>assets/images/logo.png" alt="Maintify" class="nav-logo-img me-2" style="width: 35px;">
-            
+
             <span class="nav-brand-name fw-bold fs-4" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
                 <span style="color: #F36F21; transition: text-shadow 0.3s ease;">Maint</span><span style="color: #3B82F6; transition: text-shadow 0.3s ease;">ify</span>
             </span>
@@ -42,8 +42,14 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center gap-3">
 
+                <li class="nav-item icon-btn">
+                    <button id="theme-toggle" class="nav-link border-0 bg-transparent w-100 h-100 <?php echo $is_index ? 'text-white' : 'text-dark'; ?>" title="Toggle Theme">
+                        <i class="bi bi-moon-fill fs-5" id="theme-icon"></i>
+                    </button>
+                </li>
+
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    
+
                     <li class="nav-item icon-btn">
                         <a href="<?php echo $base_url; ?>messages.php" class="nav-link position-relative <?php echo $is_index ? 'text-white' : 'text-dark'; ?> fs-5" title="Messages">
                             <i class="bi bi-chat-dots"></i>
@@ -56,7 +62,7 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
                     </li>
 
                     <li class="nav-item dropdown icon-btn">
-                        <a class="nav-link position-relative <?php echo $is_index ? 'text-white' : 'text-dark'; ?> fs-5" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" title="Notifications">
+                        <a class="nav-link position-relative <?php echo $is_index ? 'text-white' : 'text-dark'; ?> fs-5" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" title="<?php echo $lang['notifications'] ?? 'Notifications'; ?>">
                             <i class="bi bi-bell"></i>
                             <?php if ($unread_notif_count > 0): ?>
                                 <span class="position-absolute top-25 start-75 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
@@ -64,38 +70,40 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
                                 </span>
                             <?php endif; ?>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4" aria-labelledby="notifDropdown" style="width: 320px;">
-                            <li class="px-3 py-3 d-flex justify-content-between align-items-center border-bottom">
-                                <span class="fw-bold">Notifications</span>
+                        <ul class="dropdown-menu dropdown-menu-end notif-dropdown" aria-labelledby="notifDropdown">
+                            <li class="notif-header d-flex justify-content-between align-items-center">
+                                <span class="fw-bold"><?php echo $lang['notifications'] ?? 'Notifications'; ?></span>
                                 <?php if ($unread_notif_count > 0): ?>
-                                    <span class="badge bg-primary rounded-pill"><?php echo $unread_notif_count; ?> New</span>
+                                    <span class="badge bg-primary rounded-pill"><?php echo $unread_notif_count; ?> <?php echo $lang['new'] ?? 'New'; ?></span>
                                 <?php endif; ?>
                             </li>
 
                             <?php if (count($recent_notifications) > 0): ?>
                                 <?php foreach ($recent_notifications as $notif): ?>
                                     <li>
-                                        <a class="dropdown-item py-3 border-bottom <?php echo $notif['is_read'] ? 'opacity-75' : 'bg-light'; ?>" 
+                                        <a class="notif-item <?php echo $notif['is_read'] ? '' : 'unread'; ?>" 
                                            href="<?php echo $base_url; ?>read_notification.php?id=<?php echo $notif['id']; ?>">
-                                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                                <span class="text-primary fw-bold" style="font-size: 13px;">
-                                                    <i class="bi bi-circle-fill <?php echo $notif['is_read'] ? 'text-muted' : 'text-primary'; ?> me-1" style="font-size: 8px;"></i>
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <span class="notif-title">
+                                                    <?php if (!$notif['is_read']): ?>
+                                                        <i class="bi bi-circle-fill text-primary me-1" style="font-size: 8px;"></i>
+                                                    <?php endif; ?>
                                                     <?php echo htmlspecialchars($notif['title']); ?>
                                                 </span>
-                                                <small class="text-muted" style="font-size: 10px;">
+                                                <span class="notif-time">
                                                     <?php echo date('M d, H:i', strtotime($notif['created_at'])); ?>
-                                                </small>
+                                                </span>
                                             </div>
-                                            <div class="text-dark ps-3 text-wrap" style="font-size: 13px; line-height: 1.5;">
+                                            <div class="notif-body text-wrap">
                                                 <?php echo htmlspecialchars($notif['message']); ?>
                                             </div>
                                         </a>
                                     </li>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <li class="p-4 text-center text-muted">
-                                    <i class="bi bi-bell-slash fs-2 d-block mb-2 text-light-subtle"></i>
-                                    <small>No notifications yet.</small>
+                                <li class="notif-empty">
+                                    <i class="bi bi-bell-slash fs-2 d-block mb-2"></i>
+                                    <span><?php echo $lang['no_notifications'] ?? 'No notifications yet.'; ?></span>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -112,8 +120,8 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 mt-2" aria-labelledby="userDropdown">
                             <li>
-                                <?php 
-                                    $dash_link = $base_url . ($_SESSION['role'] === 'technician' ? 'Technician/dashboard.php' : 'Homeowner/dashboard.php');
+                                <?php
+                                $dash_link = $base_url . ($_SESSION['role'] === 'technician' ? 'Technician/dashboard.php' : 'Homeowner/dashboard.php');
                                 ?>
                                 <a class="dropdown-item py-2 fw-medium" href="<?php echo $dash_link; ?>">
                                     <i class="bi bi-grid me-2 text-muted"></i> Dashboard
@@ -129,7 +137,9 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
                                     <i class="bi bi-gear me-2 text-muted"></i> <?php echo $lang['settings'] ?? 'Settings'; ?>
                                 </a>
                             </li>
-                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li>
                                 <a class="dropdown-item py-2 text-danger fw-bold" href="<?php echo $base_url; ?>logout.php">
                                     <i class="bi bi-box-arrow-right me-2"></i> <?php echo $lang['logout'] ?? 'Logout'; ?>
@@ -154,8 +164,37 @@ if (isset($_SESSION['user_id']) && isset($pdo)) {
 </nav>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-    dropdownElementList.map(el => new bootstrap.Dropdown(el));
-});
+    document.addEventListener('DOMContentLoaded', function() {
+        // تفعيل الـ Dropdowns
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        dropdownElementList.map(el => new bootstrap.Dropdown(el));
+
+        // منطق الدارك مود
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlEl = document.documentElement;
+
+        // التحقق من وجود الزر قبل إضافة الحدث لتجنب الأخطاء
+        if (themeToggleBtn && themeIcon) {
+            // تحديث الأيقونة عند التحميل حسب الثيم الحالي
+            if (htmlEl.getAttribute('data-bs-theme') === 'dark') {
+                themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = htmlEl.getAttribute('data-bs-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+                htmlEl.setAttribute('data-bs-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+
+                // تغيير الأيقونة
+                if (newTheme === 'dark') {
+                    themeIcon.classList.replace('bi-moon-fill', 'bi-sun-fill');
+                } else {
+                    themeIcon.classList.replace('bi-sun-fill', 'bi-moon-fill');
+                }
+            });
+        }
+    });
 </script>

@@ -6,6 +6,11 @@ $dir = ($lang_code === 'ar') ? 'rtl' : 'ltr';
 <html lang="<?php echo $lang_code; ?>" dir="<?php echo $dir; ?>">
 
 <head>
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Maintify - Home Facility Management Platform">
@@ -21,43 +26,22 @@ $dir = ($lang_code === 'ar') ? 'rtl' : 'ltr';
     <?php if ($lang_code === 'ar'): ?>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
         <style>
-            body {
-                font-family: 'Tajawal', sans-serif !important;
-            }
-
-
-            .bi-chevron-right::before {
-                content: "\f284";
-            }
-
-            /* يقلب السهم لليسار */
-            .bi-chevron-left::before {
-                content: "\f285";
-            }
-
-            /* يقلب السهم لليمين */
+            body { font-family: 'Tajawal', sans-serif !important; }
+            .bi-chevron-right::before { content: "\f284"; }
+            .bi-chevron-left::before { content: "\f285"; }
         </style>
     <?php else: ?>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <?php endif; ?>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    
-    
-
     <link rel="stylesheet" href="/Maintify/assets/css/style.css?v=<?php echo time(); ?>">
-    
-    
     <link rel="stylesheet" href="/Maintify/assets/css/str.css?v=<?php echo time(); ?>">
-
     <link rel="stylesheet" href="/Maintify/assets/css/nav.css?v=<?php echo time(); ?>">
-
     <link rel="icon" type="image/png" href="/Maintify/assets/images/favicon.png">
-
     <link rel="stylesheet" href="/Maintify/assets/css/foot.css">
-
-
+    <link rel="stylesheet" href="/Maintify/assets/css/sidebar.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/Maintify/assets/css/notifications.css?v=<?php echo time(); ?>">
 </head>
 
 <body class="d-flex flex-column min-vh-100">

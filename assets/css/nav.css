@@ -15,7 +15,7 @@
     top: 0;
     z-index: 1040 !important; 
     background: #ffffff !important;
-    border-bottom: 1px solid var(--google-border) !important;
+    border-bottom: 2px solid #F36F21 !important;
     padding: 10px 0;
     box-shadow: 0 1px 2px 0 rgba(60,64,67,0.05);
     transition: var(--transition);
@@ -148,4 +148,45 @@
 }
 .brand-hover-glow:hover .nav-brand-name span:last-child {
     text-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+}
+
+
+/* =========================================
+   DARK MODE OVERRIDES (Premium Slate Theme)
+   ========================================= */
+[data-bs-theme="dark"] body.d-flex {
+    background-color: #0f172a !important; /* كحلي داكن للخلفية */
+    color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .maintify-nav,
+[data-bs-theme="dark"] .google-sidebar,
+[data-bs-theme="dark"] .google-card {
+    background-color: #1e293b !important; /* كحلي أفتح للصناديق */
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .maintify-nav .nav-brand-name {
+    color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .google-nav-link {
+    color: #cbd5e1 !important;
+}
+
+[data-bs-theme="dark"] .google-nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #F36F21 !important;
+}
+
+[data-bs-theme="dark"] .google-nav-section {
+    color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .form-control, 
+[data-bs-theme="dark"] .form-select {
+    background-color: #0f172a !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
 }

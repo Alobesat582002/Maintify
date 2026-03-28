@@ -341,6 +341,15 @@ $lang = [
     'about_sec1_desc' => 'To be the leading platform for home maintenance services.',
     'about_sec2_title' => 'Our Mission',
     'about_sec2_desc' => 'Providing a seamless, secure, and efficient way to get home repairs done by certified professionals.',
+    'about_subtitle' => 'Connecting you with trusted technicians, building a better maintenance experience.',
+    'about_sec3_title' => 'Why Maintify?',
+    'about_sec3_desc1' => 'Verified Professionals: We thoroughly review the identities and experiences of all technicians.',
+    'about_sec3_desc2' => 'Transparent Proposals: Get competitive bids from multiple technicians and choose the best one.',
+    'about_sec3_desc3' => 'Secure & Fair: We provide a fair system for both parties with clear problem-resolution processes.',
+    'about_sec4_title' => 'Our Core Values',
+    'about_sec4_desc1' => 'Integrity: We believe in honest and transparent service in every interaction.',
+    'about_sec4_desc2' => 'Quality: We strive for excellence, matching you with the highest standard of work.',
+    'about_sec4_desc3' => 'Innovation: We continuously improve our platform to make maintenance seamless.',
 
     // --- Pages: Services ---
     'services_title' => 'Our Services',
@@ -429,5 +438,10 @@ $lang = [
     'footer_contact' => 'Contact Us',
     'footer_address' => 'Amman, Jordan',
     'footer_copyright' => 'Maintify. All rights reserved.',
+
+    // --- Notifications ---
+    'notifications' => 'Notifications',
+    'new' => 'New',
+    'no_notifications' => 'No notifications yet.',
 
     ];
