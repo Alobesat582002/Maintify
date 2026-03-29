@@ -1,4 +1,8 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require_once 'vendor/autoload.php';
 require_once 'config/db.php';
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -43,14 +47,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_email'])) {
                 ON DUPLICATE KEY UPDATE otp=?, expires_at=?, used=0
             ")->execute([$email, $otp, $expires, $otp, $expires]);
 
-            // إرسال الإيميل (يفضل لاحقاً استخدام مكتبة مثل PHPMailer لضمان وصوله)
-            mail($email, "Maintify - Password Reset Code", "Your OTP verification code is: $otp");
+           
+            // ================== إعدادات PHPMailer ==================
+            $mail = new PHPMailer(true);
 
-            $_SESSION['reset_email'] = $email;
-            $_SESSION['otp_attempts'] = 0;
+            try {
+                // إعدادات السيرفر (SMTP)
+                $mail->isSMTP();
+                $mail->Host       = 'smtp.gmail.com';
+                $mail->SMTPAuth   = true;
+                $mail->Username   = 'aanalshikh@gmail.com';     
+                $mail->Password   = 'rdup oyux pidu stjy';         
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                $mail->Port       = 465;
+                $mail->CharSet    = 'UTF-8';
 
-            $success = $lang['code_sent'] ?? "Verification code has been sent to your email.";
-            $step = STEP_OTP;
+                // إعدادات المرسل والمستقبل
+                $mail->setFrom('your_email@gmail.com', 'Maintify Support'); 
+                $mail->addAddress($email);
+
+                
+                $mail->isHTML(true);
+                $mail->Subject = 'Maintify - Password Reset Code';
+                $mail->Body    = "
+                    <div style='font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: white; text-align: center; border-radius: 10px;'>
+                        <h2 style='color: #f8fafc;'>Password Reset Request</h2>
+                        <p style='color: #94a3b8; font-size: 16px;'>You requested to reset your password. Please use the following code:</p>
+                        <div style='background-color: #1e293b; padding: 15px; margin: 20px auto; border-radius: 8px; border: 1px solid #334155; display: inline-block;'>
+                            <h1 style='color: #F36F21; letter-spacing: 5px; margin: 0;'>$otp</h1>
+                        </div>
+                        <p style='color: #64748b; font-size: 14px;'>This code is valid for 30 minutes. If you didn't request this, safely ignore this email.</p>
+                    </div>
+                ";
+
+                $mail->send();
+
+                // إذا نجح الإرسال، ننتقل للخطوة التالية
+                $_SESSION['reset_email'] = $email;
+                $_SESSION['otp_attempts'] = 0;
+                $success = $lang['code_sent'] ?? "Verification code has been sent to your email.";
+                $step = STEP_OTP;
+
+            } catch (Exception $e) {
+                // في حال فشل الإرسال
+                $error = "عذراً، فشل إرسال البريد الإلكتروني. تفاصيل الخطأ: {$mail->ErrorInfo}";
+            }
+            // ========================================================
         }
     }
 }
@@ -129,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_reset'])) {
     <link rel="stylesheet" href="assets/css/auth.css?v=<?php echo time(); ?>">
 
     <style>
-        /* ستايل إضافي لرسالة النجاح وحقل الـ OTP */
+        
         .alert-success-custom {
             background: rgba(34, 197, 94, 0.1);
             border: 1px solid rgba(34, 197, 94, 0.25);
