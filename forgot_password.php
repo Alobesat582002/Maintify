@@ -4,6 +4,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once 'vendor/autoload.php';
 require_once 'config/db.php';
+require_once 'config/mail_config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -56,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['step_email'])) {
                 $mail->isSMTP();
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
-                $mail->Username   = 'aanalshikh@gmail.com';     
-                $mail->Password   = 'rdup oyux pidu stjy';         
+                $mail->Username   = SMTP_USER;     
+                $mail->Password   = SMTP_PASS;        
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                 $mail->Port       = 465;
                 $mail->CharSet    = 'UTF-8';
