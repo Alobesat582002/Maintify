@@ -8,8 +8,8 @@
     width: 260px;
     padding: 8px 12px;
     flex-shrink: 0;
-    background-color: #ffffff; /* نفس خلفية الناف بار */
-    border-inline-end: 2px solid #F36F21; /* القاطع البرتقالي */
+    background-color: var(--card-bg, #ffffff);
+    border-inline-end: 2px solid #F36F21;
 }
 
 /* العنوان الصغير فوق المجموعة */
@@ -36,7 +36,7 @@
 }
 
 .google-nav-link:hover {
-    background: #f8fafc;
+    background: var(--warm, #f8fafc);
     color: #F36F21;
 }
 
